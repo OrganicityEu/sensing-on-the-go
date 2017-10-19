@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="eu.organicity.set.sensors.location">
+
+    <application
+        android:label="@string/app_name">
+
+        <service android:name="eu.organicity.set.sensors.location.LocationSensorService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="organicity.intent.action.PICK_PLUGIN" />
+                <category android:name="organicity.intent.category.ADD_PLUGIN" />
+            </intent-filter>
+        </service>
+
+    </application>
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+</manifest>
