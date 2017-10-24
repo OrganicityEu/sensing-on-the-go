@@ -28,4 +28,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile project(':sdk')
     compile 'com.intentfilter:android-permissions:0.1.2'
+    compile 'com.google.code.gson:gson:2.8.2'
 }

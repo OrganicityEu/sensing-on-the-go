@@ -5,5 +5,5 @@ package eu.organicity.set.sensors.sdk;
 import eu.organicity.set.sensors.sdk.IAidlCallback;
 
 interface IAidlService {
-    void getPluginInfo(IAidlCallback callback);
+    void getPluginInfo(in IAidlCallback callback);
 }

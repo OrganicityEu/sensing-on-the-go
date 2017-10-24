@@ -19,10 +19,10 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.intentfilter.androidpermissions.PermissionManager;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -181,30 +181,49 @@ public class WiFiSensorService extends Service {
 
             List<ScanResult> wifiList = wifiManager.getScanResults();
 
-            for (ScanResult result : wifiList) {
-                JSONObject jsonObject = new JSONObject();
+//            for (ScanResult result : wifiList) {
+//                JSONObject jsonObject = new JSONObject();
+//
+//                String[] stringResult = result.toString().split(",");
+//                for (String str : stringResult) {
+//                    String[] keyValue = str.split(":");
+//                    try {
+//                        jsonObject.put(keyValue[0].trim(), keyValue[1].trim());
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//
+//                jsonArray.put(jsonObject);
+//            }
 
-                String[] stringResult = result.toString().split(",");
-                for (String str : stringResult) {
-                    String[] keyValue = str.split(":");
-                    try {
-                        jsonObject.put(keyValue[0].trim(), keyValue[1].trim());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
+//            message.put("results", jsonArray);
 
-                jsonArray.put(jsonObject);
-            }
+            Gson gson = new Gson();
+            String scanJson = gson.toJson(wifiList);
 
-            message.put("results", jsonArray);
-
+            Log.i("scan wifi scan plugin", scanJson);
+//            PluginInfo info = new PluginInfo();
+//            info.setState("valid");
+            JSONObject wifisJson = new JSONObject();
             try {
-                if (mRemoteCallbacks != null) {
-                    mRemoteCallbacks.handlePluginInfo(message);
+//                List<Reading> readings = new ArrayList<Reading>();
+                message.put("org.ambientdynamix.contextplugins.WifiList", scanJson);
+//                readings.add(new Reading(Reading.Datatype.String, wifisJson.toString(), PluginInfo.CONTEXT_TYPE));
+//                info.setPayload(readings);
+//                Log.w(TAG, "WifiScan Plugin:" + info.getPayload());
+                Log.w(TAG, "WifiScan Plugin:" + wifisJson.toString());
+
+                try {
+                    if (mRemoteCallbacks != null) {
+                        mRemoteCallbacks.handlePluginInfo(message);
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
                 }
-            } catch (RemoteException e) {
-                e.printStackTrace();
+
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
             }
         }
     }

@@ -59,6 +59,10 @@ public class JsonMessage implements Parcelable {
         return jsonObject;
     }
 
+    public void setJSON(JSONObject json) {
+        jsonObject = json;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -67,5 +71,13 @@ public class JsonMessage implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(jsonObject.toString());
+    }
+
+    public void readFromParcel(Parcel in) {
+        try {
+            this.jsonObject = new JSONObject(in.readString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }
