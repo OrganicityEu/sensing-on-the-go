@@ -2,9 +2,11 @@ package eu.organicity.set.sensors.location;
 
 import android.Manifest;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -24,6 +26,8 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.intentfilter.androidpermissions.PermissionManager;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +50,16 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
     HandlerThread mHandlerThread = new HandlerThread("AidlServiceThread");
 
     private LocationListener locationListener;
+    private LocationManager locationManager;
 
     private double lat;
     private double lng;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+
+    private String stringLocation = "unknown";
+    private JSONObject locationJson;
+    private String status;
 
     @Override
     public void onCreate() {
@@ -194,6 +203,8 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
     }
 
     protected void createLocationRequest() {
+        locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
         //remove location updates so that it resets
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, locationListener); //Import should not be **android.Location.LocationListener**
         //import should be **import com.google.android.gms.location.LocationListener**;
@@ -248,20 +259,57 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
                     }
 
                     JsonMessage message = new JsonMessage();
-                    message.put(KEY_LAT, String.valueOf(lat));
-                    message.put(KEY_LNG, String.valueOf(lng));
+//                    message.put(KEY_LAT, String.valueOf(lat));
+//                    message.put(KEY_LNG, String.valueOf(lng));
 
+                    Location location;
                     try {
-                        if (mRemoteCallbacks != null) {
-                            Log.d(TAG, "Sending LatLng");
-                            mRemoteCallbacks.handlePluginInfo(message);
-//                            mRemoteCallbacks.remove(0);
-                            mRemoteCallbacks = null;
+                        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        if (location == null) {
+                            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                         }
 
+                        if (location != null) {
+                            stringLocation = location.getLatitude() + "," + location.getLongitude();
+                            message.put("org.ambientdynamix.contextplugins.Latitude", String.valueOf(location.getLatitude()));
+                            message.put("org.ambientdynamix.contextplugins.Longitude", String.valueOf(location.getLongitude()));
+                            status = "valid";
+                        } else {
+                            locationJson = null;
+                            stringLocation = "";
+                            status = "invalid";
+                        }
+                    } catch (Exception e) {
+                        Log.w("GPS Plugin Error", e.toString());
+                        stringLocation = "";
+                        status = "invalid";
+                    }
+
+                    Log.w(TAG, "GPS Plugin:" + stringLocation);
+//                        PluginInfo info = new PluginInfo();
+//                        info.setState(status);
+//                        List<Reading> r = new ArrayList<Reading>();
+//                        r.add(new Reading(Reading.Datatype.String, this.locationJson.toString(), PluginInfo.CONTEXT_TYPE));
+//                        info.setPayload(r);
+//                        Log.w(TAG, "GPS Plugin:" + info.getPayload());
+                    Log.w(TAG, "GPS Plugin: " + message.toString());
+//                        if (requestId != null) {
+//                            sendContextEvent(requestId, new SecuredContextInfo(info, PrivacyRiskLevel.LOW), 60000);
+//                            Log.w(TAG, "GPS Plugin from Request:" + info.getPayload());
+//                        } else {
+//                            sendBroadcastContextEvent(new SecuredContextInfo(info, PrivacyRiskLevel.LOW), 60000);
+//                            Log.w(TAG, "GPS Plugin Broadcast:" + info.getPayload());
+//                        }
+
+
+                    try {
+                        mRemoteCallbacks.handlePluginInfo(message);
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
+//                            mRemoteCallbacks.remove(0);
+                    mRemoteCallbacks = null;
+
                     break;
             }
         }

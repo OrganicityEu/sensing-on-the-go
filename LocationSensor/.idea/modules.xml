@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Plugin1.iml" filepath="$PROJECT_DIR$/Plugin1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LocationSensor.iml" filepath="$PROJECT_DIR$/LocationSensor.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/sdk/sdk.iml" filepath="$PROJECT_DIR$/sdk/sdk.iml" />
     </modules>
