@@ -11,6 +11,9 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,24 +81,70 @@ public class WifiScannerExperiment extends Service {
         public void getExperimentResult(Bundle bundle, JsonMessage jsonMessage1) throws RemoteException {
 //            Log.d(TAG, bundle.toString());
 
-            List<Reading> readings = new ArrayList<>();
+//            List<Reading> readings = new ArrayList<>();
+//
+//            for (String key : bundle.keySet()){
+//                Log.d(TAG, key);
+//                if (key.contains("eu.organicity.set.experiments")){
+//                    continue;
+//                }
+//                String jsonReading = bundle.getString(key);
+//                Reading reading = Reading.fromJson(jsonReading);
+//                Log.d(TAG, "Reading: " + reading.toJson());
+//
+//                readings.add(new Reading(Reading.Datatype.String, reading.toJson(), CONTEXT_TYPE));
+//            }
+//
+//            jsonMessage1.setState("ACTIVE");
+//            jsonMessage1.setPayload(readings);
+//
+//            Log.d(TAG, "Result readings: " + jsonMessage1.getPayload());
 
-            for (String key : bundle.keySet()){
-                Log.d(TAG, key);
-                if (key.contains("eu.organicity.set.experiments")){
-                    continue;
+            String jsonReading = bundle.getString("eu.organicity.set.sensors.location.LocationSensorService");
+            String jsonReadingWifiScan = bundle.getString("eu.organicity.set.sensors.wifi.WifiSensorService");
+
+            //Add timestamp
+            try {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("timestamp",  System.currentTimeMillis());
+
+                Reading gpsReading = Reading.fromJson(jsonReading);
+                Reading wifiReading = Reading.fromJson(jsonReadingWifiScan);
+
+                jsonMessage1.setState("ACTIVE");
+
+                if (gpsReading != null) {
+                    Log.w("Experiment Message:", gpsReading.toJson());
+                    JSONObject gps = new JSONObject(gpsReading.getValue());
+                    jsonObject.put("eu.organicity.set.sensors.location.Longitude", gps.get("eu.organicity.set.sensors.location.Longitude"));
+                    jsonObject.put("eu.organicity.set.sensors.location.Latitude", gps.get("eu.organicity.set.sensors.location.Latitude"));
+                } else {
+                    jsonObject.put("eu.organicity.set.sensors.location.Longitude", "");
+                    jsonObject.put("eu.organicity.set.sensors.location.Latitude", "");
                 }
-                String jsonReading = bundle.getString(key);
-                Reading reading = Reading.fromJson(jsonReading);
-                Log.d(TAG, "Reading: " + reading.toJson());
 
-                readings.add(new Reading(Reading.Datatype.String, reading.toJson(), CONTEXT_TYPE));
+                if (wifiReading != null) {
+                    Log.w("Experiment Message:", wifiReading.toJson());
+                    JSONObject noise = new JSONObject(wifiReading.getValue());
+                    jsonObject.put("eu.organicity.set.sensors.wifi.WifiList", noise.get("eu.organicity.set.sensors.wifi.WifiList"));
+                } else {
+                    jsonObject.put("eu.organicity.set.sensors.wifi.WifiList", "");
+                }
+
+                if (gpsReading != null && wifiReading != null) {
+//                    jsonMessage1.setJSON(jsonObject);
+
+                    List<Reading> r = new ArrayList<>();
+                    r.add(new Reading(jsonObject.toString(), CONTEXT_TYPE));
+                    jsonMessage1.setPayload(r);
+                }
+
+
+
+                Log.d(TAG, "Result readings: " + jsonMessage1.getPayload());
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-
-            jsonMessage1.setState("ACTIVE");
-            jsonMessage1.setPayload(readings);
-
-            Log.d(TAG, "Result readings: " + jsonMessage1.getPayload());
         }
     };
 

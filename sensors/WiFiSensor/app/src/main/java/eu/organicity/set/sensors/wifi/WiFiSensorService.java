@@ -37,7 +37,7 @@ public class WifiSensorService extends Service {
 
     private static final String TAG = "WiFiSensorService";
     private static final int MSG_PLUGIN_INFO = 53;
-    public static String CONTEXT_TYPE = "org.ambientdynamix.contextplugins.WifiScanPlugin";
+    public static String CONTEXT_TYPE;
 
     private ISensorCallback mRemoteCallbacks;
 
@@ -55,6 +55,7 @@ public class WifiSensorService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        CONTEXT_TYPE = getApplicationContext().getPackageName();
 
         Log.d(TAG, "Service created");
 
@@ -202,11 +203,11 @@ public class WifiSensorService extends Service {
             JsonMessage info = new JsonMessage();
             info.setState("valid");
 
-            List<Reading> readings = new ArrayList<Reading>();
+            List<Reading> readings = new ArrayList<>();
             JSONObject wifisJson = new JSONObject();
             try {
-                wifisJson.put("org.ambientdynamix.contextplugins.WifiList", scanJson);
-                readings.add(new Reading(Reading.Datatype.String, wifisJson.toString(), CONTEXT_TYPE));
+                wifisJson.put("eu.organicity.set.sensors.wifi.WifiList", scanJson);
+                readings.add(new Reading(wifisJson.toString(),  CONTEXT_TYPE + ".WifiSensorService"));
                 info.setPayload(readings);
                 Log.w(TAG, "WifiScan Plugin:" + info.getPayload());
 
