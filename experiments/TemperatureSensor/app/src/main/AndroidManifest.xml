@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="eu.organicity.set.sensors.temperature.temperaturesensor">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <service
+            android:name=".TemperatureSensorService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="organicity.intent.action.PICK_PLUGIN" />
+                <category android:name="organicity.intent.category.ADD_PLUGIN" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>
