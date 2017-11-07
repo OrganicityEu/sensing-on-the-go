@@ -88,12 +88,7 @@ public class NoiseSensorService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "on start command called");
-        if (intent != null) {
-            return START_STICKY;
-        } else {
-            stopSelf();
-            return START_NOT_STICKY;
-        }
+        return START_STICKY;
     }
 
     @Override
@@ -107,17 +102,26 @@ public class NoiseSensorService extends Service {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+
         Log.i(TAG, "Service destroyed!");
         //TODO unregister listeners, unbind services and clean up here
+        mHandlerThread.quit();
+        mHandler.removeCallbacksAndMessages(null);
+        mHandler = null;
 
-        mRecorder.stop();     // stop recording
-        mRecorder.reset();    // set state to idle
-        mRecorder.release();  // release resources back to the system
+        try {
+            mRecorder.stop();     // stop recording
+            mRecorder.reset();    // set state to idle
+            mRecorder.release();  // release resources back to the system
+        }
+        catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+
         mRecorder = null;
 
-        handler.removeCallbacks(runnable);
-
-        super.onDestroy();
+        stopSelf();
     }
 
     /**

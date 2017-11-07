@@ -122,17 +122,14 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "on start command called");
-        if (intent != null) {
-            return START_STICKY;
-        } else {
-            stopSelf();
-            return START_NOT_STICKY;
-        }
+        return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         // Handler Thread handling all call back methods
+        Log.d(TAG, "Service onBind was called!");
+
         mHandlerThread.start();
         mHandler = new ServiceHandler(mHandlerThread.getLooper());
 
@@ -141,10 +138,17 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+
         Log.i(TAG, "Service destroyed!");
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, locationListener); //Import should not be **android.Location.LocationListener**
         mGoogleApiClient.disconnect();
-        super.onDestroy();
+
+        mHandlerThread.quit();
+        mHandler.removeCallbacksAndMessages(null);
+        mHandler = null;
+
+        stopSelf();
     }
 
     /**

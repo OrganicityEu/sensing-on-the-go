@@ -99,12 +99,7 @@ public class WifiSensorService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "on start command called");
-        if (intent != null) {
-            return START_STICKY;
-        } else {
-            stopSelf();
-            return START_NOT_STICKY;
-        }
+        return START_STICKY;
     }
 
     @Override
@@ -118,9 +113,12 @@ public class WifiSensorService extends Service {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+
         Log.i(TAG, "Service destroyed!");
         unregisterReceiver(wifiReceiver);
-        super.onDestroy();
+        mHandlerThread.quit();
+        mHandler.removeCallbacksAndMessages(null);
     }
 
     /**

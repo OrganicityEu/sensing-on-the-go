@@ -69,6 +69,8 @@ public class WifiScannerExperiment extends Service {
     @Override
     public void onDestroy() {
         Log.i(TAG, "Service destroyed!");
+        mHandlerThread.quit();
+        mHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
 
@@ -79,26 +81,6 @@ public class WifiScannerExperiment extends Service {
 
         @Override
         public void getExperimentResult(Bundle bundle, JsonMessage jsonMessage1) throws RemoteException {
-//            Log.d(TAG, bundle.toString());
-
-//            List<Reading> readings = new ArrayList<>();
-//
-//            for (String key : bundle.keySet()){
-//                Log.d(TAG, key);
-//                if (key.contains("eu.organicity.set.experiments")){
-//                    continue;
-//                }
-//                String jsonReading = bundle.getString(key);
-//                Reading reading = Reading.fromJson(jsonReading);
-//                Log.d(TAG, "Reading: " + reading.toJson());
-//
-//                readings.add(new Reading(Reading.Datatype.String, reading.toJson(), CONTEXT_TYPE));
-//            }
-//
-//            jsonMessage1.setState("ACTIVE");
-//            jsonMessage1.setPayload(readings);
-//
-//            Log.d(TAG, "Result readings: " + jsonMessage1.getPayload());
 
             String jsonReading = bundle.getString("eu.organicity.set.sensors.location.LocationSensorService");
             String jsonReadingWifiScan = bundle.getString("eu.organicity.set.sensors.wifi.WifiSensorService");

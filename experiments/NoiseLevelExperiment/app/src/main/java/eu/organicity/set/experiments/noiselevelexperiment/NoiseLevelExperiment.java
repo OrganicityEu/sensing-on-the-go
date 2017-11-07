@@ -48,13 +48,7 @@ public class NoiseLevelExperiment extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "on start command called");
-
-        if (intent != null) {
-            return START_STICKY;
-        } else {
-            stopSelf();
-            return START_NOT_STICKY;
-        }
+        return START_STICKY;
     }
 
     @Override
@@ -69,6 +63,8 @@ public class NoiseLevelExperiment extends Service {
     @Override
     public void onDestroy() {
         Log.i(TAG, "Service destroyed!");
+        mHandlerThread.quit();
+        mHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
 
