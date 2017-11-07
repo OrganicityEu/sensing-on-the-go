@@ -120,6 +120,7 @@ public class ExperimentsCardAdapter extends RecyclerView.Adapter<ExperimentsCard
         boolean running = false;
         if (AppModel.instance.experiment != null && AppModel.instance.experiment.getId().equals(experiment.getId())) {
             runningExperiment = AppModel.instance.experiment;
+            runningExperiment.setState(Experiment.State.RUNNING);
             running = true;
         }
 

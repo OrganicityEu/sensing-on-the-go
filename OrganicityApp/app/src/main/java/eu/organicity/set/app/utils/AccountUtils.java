@@ -77,7 +77,7 @@ public class AccountUtils {
                 accessToken = null;
             }
         } else {
-            Log.w(TAG, "No offline token available!");
+//            Log.w(TAG, "No offline token available!");
             accessToken = null;
             jwt = null;
         }

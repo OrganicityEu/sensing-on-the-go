@@ -18,6 +18,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -83,7 +84,9 @@ import gr.cti.android.experimentation.model.UsageEntry;
 
 import static eu.organicity.set.app.services.SchedulerService.STOP;
 import static eu.smartsantander.androidExperimentation.util.Constants.EXPERIMENT;
+import static eu.smartsantander.androidExperimentation.util.Constants.EXPERIMENT_STATE_INTENT;
 import static eu.smartsantander.androidExperimentation.util.Constants.RESULT_ACTION;
+import static eu.smartsantander.androidExperimentation.util.Constants.STATE;
 
 /**
  * Created by chris on 06/07/2017.
@@ -107,6 +110,25 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
                         updateMapLocation(lat, lon);
                     }
                     break;
+            }
+        }
+    };
+
+    private BroadcastReceiver experimentStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.hasExtra(EXPERIMENT) && intent.hasExtra(STATE)) {
+                Experiment experiment = (Experiment) intent.getSerializableExtra(EXPERIMENT);
+                Experiment.State state = (Experiment.State) intent.getSerializableExtra(STATE);
+
+                if (lastExperimentButton.getVisibility() == View.VISIBLE) {
+                    if (state == Experiment.State.RUNNING) {
+                        lastExperimentButton.setText("Stop");
+                    }
+                    else {
+                        lastExperimentButton.setText("Start");
+                    }
+                }
             }
         }
     };
@@ -214,10 +236,12 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
                 if (lastExperimentButton.getText().toString().toLowerCase().equals("stop")) {
                     intent.putExtra(STOP, true);
                     getActivity().startService(intent);
+                    lastExperimentButton.setText("Start");
                 }
                 else {
                     intent.putExtra(EXPERIMENT, AppModel.instance.experiment);
                     getActivity().startService(intent);
+                    lastExperimentButton.setText("Stop");
                 }
             }
         });
@@ -302,6 +326,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
         super.onResume();
         mapView.onResume();
 
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(experimentStateReceiver, new IntentFilter(EXPERIMENT_STATE_INTENT));
+
         if (!AppModel.instance.isDeviceRegistered()) {
             AppModel.instance.phoneProfiler.register();
         }
@@ -339,6 +365,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
         mapView.onPause();
 
         statsHandler.removeCallbacks(statsRunnable);
+
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(experimentStateReceiver);
     }
 
     @Override
