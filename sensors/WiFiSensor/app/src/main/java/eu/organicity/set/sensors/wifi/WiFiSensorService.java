@@ -22,22 +22,24 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.intentfilter.androidpermissions.PermissionManager;
 
-import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.organicity.set.sensors.sdk.IAidlCallback;
-import eu.organicity.set.sensors.sdk.IAidlService;
-import eu.organicity.set.sensors.sdk.JsonMessage;
+import eu.organicity.set.app.sdk.ISensorCallback;
+import eu.organicity.set.app.sdk.ISensorService;
+import eu.organicity.set.app.sdk.JsonMessage;
+import eu.organicity.set.app.sdk.Reading;
 
-public class WiFiSensorService extends Service {
+public class WifiSensorService extends Service {
 
     private static final String TAG = "WiFiSensorService";
     private static final int MSG_PLUGIN_INFO = 53;
+    public static String CONTEXT_TYPE;
 
-    private IAidlCallback mRemoteCallbacks;
+    private ISensorCallback mRemoteCallbacks;
 
     private ServiceHandler mHandler = null;
 
@@ -45,16 +47,19 @@ public class WiFiSensorService extends Service {
 
     private WifiManager wifiManager;
     private WifiReceiver wifiReceiver;
+    private boolean scanRequested;
 
-    public WiFiSensorService() {
+    public WifiSensorService() {
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        CONTEXT_TYPE = getApplicationContext().getPackageName();
 
         Log.d(TAG, "Service created");
 
+        scanRequested = false;
         List<String> perm = new ArrayList<>();
         perm.add(Manifest.permission.ACCESS_COARSE_LOCATION);
 
@@ -94,7 +99,7 @@ public class WiFiSensorService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "on start command called");
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     @Override
@@ -108,18 +113,21 @@ public class WiFiSensorService extends Service {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+
         Log.i(TAG, "Service destroyed!");
         unregisterReceiver(wifiReceiver);
-        super.onDestroy();
+        mHandlerThread.quit();
+        mHandler.removeCallbacksAndMessages(null);
     }
 
     /**
      * Stub implementation for Remote service
      */
-    IAidlService.Stub mBinder = new IAidlService.Stub() {
+    ISensorService.Stub mBinder = new ISensorService.Stub() {
 
         @Override
-        public void getPluginInfo(IAidlCallback callback) throws RemoteException {
+        public void getPluginInfo(ISensorCallback callback) throws RemoteException {
 
             Log.d(TAG, "getPluginInfo called!");
             sendMsgToHandler(callback, MSG_PLUGIN_INFO);
@@ -132,7 +140,7 @@ public class WiFiSensorService extends Service {
      * @param callback
      * @param flag
      */
-    void sendMsgToHandler(IAidlCallback callback, int flag) {
+    void sendMsgToHandler(ISensorCallback callback, int flag) {
 
 //        mRemoteCallbacks.add(callback);
         mRemoteCallbacks = callback;
@@ -163,6 +171,8 @@ public class WiFiSensorService extends Service {
 
                 case MSG_PLUGIN_INFO:
                     if (wifiManager != null) {
+                        Log.d(TAG, "Wifi scan started!");
+                        scanRequested = true;
                         wifiManager.startScan();
                     }
                     break;
@@ -172,58 +182,42 @@ public class WiFiSensorService extends Service {
 
     class WifiReceiver extends BroadcastReceiver {
         public void onReceive(Context c, Intent intent) {
+            if (!scanRequested) {
+                return;
+            }
+
+            scanRequested = false;
+
             if (!intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false)) {
                 return;
             }
 
-            JsonMessage message = new JsonMessage();
-            JSONArray jsonArray = new JSONArray();
-
             List<ScanResult> wifiList = wifiManager.getScanResults();
-
-//            for (ScanResult result : wifiList) {
-//                JSONObject jsonObject = new JSONObject();
-//
-//                String[] stringResult = result.toString().split(",");
-//                for (String str : stringResult) {
-//                    String[] keyValue = str.split(":");
-//                    try {
-//                        jsonObject.put(keyValue[0].trim(), keyValue[1].trim());
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//                jsonArray.put(jsonObject);
-//            }
-
-//            message.put("results", jsonArray);
 
             Gson gson = new Gson();
             String scanJson = gson.toJson(wifiList);
 
             Log.i("scan wifi scan plugin", scanJson);
-//            PluginInfo info = new PluginInfo();
-//            info.setState("valid");
+            JsonMessage info = new JsonMessage();
+            info.setState("valid");
+
+            List<Reading> readings = new ArrayList<>();
             JSONObject wifisJson = new JSONObject();
             try {
-//                List<Reading> readings = new ArrayList<Reading>();
-                message.put("org.ambientdynamix.contextplugins.WifiList", scanJson);
-//                readings.add(new Reading(Reading.Datatype.String, wifisJson.toString(), PluginInfo.CONTEXT_TYPE));
-//                info.setPayload(readings);
-//                Log.w(TAG, "WifiScan Plugin:" + info.getPayload());
-                Log.w(TAG, "WifiScan Plugin:" + wifisJson.toString());
+                wifisJson.put("eu.organicity.set.sensors.wifi.WifiList", scanJson);
+                readings.add(new Reading(wifisJson.toString(),  CONTEXT_TYPE + ".WifiSensorService"));
+                info.setPayload(readings);
+                Log.w(TAG, "WifiScan Plugin:" + info.getPayload());
 
                 try {
                     if (mRemoteCallbacks != null) {
-                        mRemoteCallbacks.handlePluginInfo(message);
+                        mRemoteCallbacks.handlePluginInfo(info);
                     }
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
-
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
     }

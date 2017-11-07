@@ -32,18 +32,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.organicity.set.sensors.sdk.IAidlCallback;
-import eu.organicity.set.sensors.sdk.IAidlService;
-import eu.organicity.set.sensors.sdk.JsonMessage;
+import eu.organicity.set.app.sdk.ISensorCallback;
+import eu.organicity.set.app.sdk.ISensorService;
+import eu.organicity.set.app.sdk.JsonMessage;
+import eu.organicity.set.app.sdk.Reading;
 
 public class LocationSensorService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     static final String TAG = "LocationSensorService";
 
     private static final int MSG_PLUGIN_INFO = 53;
-    private static final String KEY_LAT = "LAT";
-    private static final String KEY_LNG = "LNG";
+    public static String CONTEXT_TYPE;
 
-    private IAidlCallback mRemoteCallbacks;
+    private ISensorCallback mRemoteCallbacks;
 
     private ServiceHandler mHandler = null;
 
@@ -64,6 +64,7 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
     @Override
     public void onCreate() {
         super.onCreate();
+        CONTEXT_TYPE = getApplicationContext().getPackageName();
 
         Log.d(TAG, "Service created");
 
@@ -121,12 +122,14 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "on start command called");
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         // Handler Thread handling all call back methods
+        Log.d(TAG, "Service onBind was called!");
+
         mHandlerThread.start();
         mHandler = new ServiceHandler(mHandlerThread.getLooper());
 
@@ -135,19 +138,26 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+
         Log.i(TAG, "Service destroyed!");
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, locationListener); //Import should not be **android.Location.LocationListener**
         mGoogleApiClient.disconnect();
-        super.onDestroy();
+
+        mHandlerThread.quit();
+        mHandler.removeCallbacksAndMessages(null);
+        mHandler = null;
+
+        stopSelf();
     }
 
     /**
      * Stub implementation for Remote service
      */
-    IAidlService.Stub mBinder = new IAidlService.Stub() {
+    ISensorService.Stub mBinder = new ISensorService.Stub() {
 
         @Override
-        public void getPluginInfo(IAidlCallback callback) throws RemoteException {
+        public void getPluginInfo(ISensorCallback callback) throws RemoteException {
 
             Log.d(TAG, "getPluginInfo called!");
             sendMsgToHandler(callback, MSG_PLUGIN_INFO);
@@ -160,12 +170,11 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
      * @param callback
      * @param flag
      */
-    void sendMsgToHandler(IAidlCallback callback, int flag) {
+    void sendMsgToHandler(ISensorCallback callback, int flag) {
 
         mRemoteCallbacks = callback;
 
         Message message = mHandler.obtainMessage();
-//        message.arg1 = mRemoteCallbacks.size() - 1;
 
         message.what = flag;
         mHandler.sendMessage(message);
@@ -175,21 +184,6 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "GoogleApiClient connected!");
         createLocationRequest();
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            // TODO: Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return;
-//        }
-//        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-//        lat = location.getLatitude();
-//        lng = location.getLongitude();
-//
-//        Log.i(TAG, " Location: " + location);
     }
 
     @Override
@@ -258,10 +252,6 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
                         return;
                     }
 
-                    JsonMessage message = new JsonMessage();
-//                    message.put(KEY_LAT, String.valueOf(lat));
-//                    message.put(KEY_LNG, String.valueOf(lng));
-
                     Location location;
                     try {
                         location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -272,8 +262,8 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
                         if (location != null) {
                             stringLocation = location.getLatitude() + "," + location.getLongitude();
                             locationJson = new JSONObject();
-                            message.put("org.ambientdynamix.contextplugins.Latitude", String.valueOf(location.getLatitude()));
-                            message.put("org.ambientdynamix.contextplugins.Longitude", String.valueOf(location.getLongitude()));
+                            locationJson.put(CONTEXT_TYPE + ".Latitude", location.getLatitude());
+                            locationJson.put(CONTEXT_TYPE + ".Longitude", location.getLongitude());
                             status = "valid";
                         } else {
                             locationJson = null;
@@ -286,29 +276,22 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
                         status = "invalid";
                     }
 
-                    Log.w(TAG, "GPS Plugin:" + stringLocation);
-//                        PluginInfo info = new PluginInfo();
-//                        info.setState(status);
-//                        List<Reading> r = new ArrayList<Reading>();
-//                        r.add(new Reading(Reading.Datatype.String, this.locationJson.toString(), PluginInfo.CONTEXT_TYPE));
-//                        info.setPayload(r);
-//                        Log.w(TAG, "GPS Plugin:" + info.getPayload());
-                    Log.w(TAG, "GPS Plugin: " + locationJson.toString());
-//                        if (requestId != null) {
-//                            sendContextEvent(requestId, new SecuredContextInfo(info, PrivacyRiskLevel.LOW), 60000);
-//                            Log.w(TAG, "GPS Plugin from Request:" + info.getPayload());
-//                        } else {
-//                            sendBroadcastContextEvent(new SecuredContextInfo(info, PrivacyRiskLevel.LOW), 60000);
-//                            Log.w(TAG, "GPS Plugin Broadcast:" + info.getPayload());
-//                        }
+                    if (locationJson != null) {
+                        Log.w(TAG, "GPS Plugin:" + locationJson.toString());
+                        JsonMessage info = new JsonMessage();
+                        info.setState(status);
+                        List<Reading> r = new ArrayList<>();
+                        r.add(new Reading(Reading.Datatype.String, locationJson.toString(), CONTEXT_TYPE + ".LocationSensorService"));
+                        info.setPayload(r);
+                        Log.w(TAG, "GPS Plugin:" + info.getPayload());
 
-
-                    try {
-                        mRemoteCallbacks.handlePluginInfo(message);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
+                        try {
+                            mRemoteCallbacks.handlePluginInfo(info);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
                     }
-//                            mRemoteCallbacks.remove(0);
+
                     mRemoteCallbacks = null;
 
                     break;

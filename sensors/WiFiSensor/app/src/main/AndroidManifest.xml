@@ -6,7 +6,7 @@
     <application
         android:label="@string/app_name">
 
-        <service android:name="eu.organicity.set.sensors.wifi.WiFiSensorService"
+        <service android:name="eu.organicity.set.sensors.wifi.WifiSensorService"
             android:exported="true">
             <intent-filter>
                 <action android:name="organicity.intent.action.PICK_PLUGIN" />
