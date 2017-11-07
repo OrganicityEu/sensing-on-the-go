@@ -1,0 +1,179 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fontFamily="sans-serif-light"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            android:gravity="center_horizontal|top"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/select_asset" />
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/assets_spinner"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="5"
+                        android:spinnerMode="dropdown" />
+
+                    <ProgressBar
+                        android:layout_width="0dp"
+                        android:id="@+id/refreshAssetsProgress"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:layout_width="0dp"
+                        android:id="@+id/refreshAssets"
+                        android:layout_height="40dp"
+                        android:src="@drawable/reload"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:layout_weight="1" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tag_domains_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/annotation_domains" />
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/domains_spinner"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="5"
+                        android:spinnerMode="dropdown" />
+
+                    <ProgressBar
+                        android:layout_width="0dp"
+                        android:id="@+id/refreshDomainsProgress"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:layout_width="0dp"
+                        android:id="@+id/refreshDomains"
+                        android:layout_height="40dp"
+                        android:src="@drawable/reload"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:layout_weight="1" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tags_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/Annotation" />
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/tags_spinner"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="5"
+                        android:spinnerMode="dropdown" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <fragment
+                android:id="@+id/map_main"
+                android:name="com.google.android.gms.maps.MapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp" />
+
+            <com.cunoraz.tagview.TagView xmlns:tagview="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/annotations_tags"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                tagview:tagMargin="5dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btn_add_annotation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/btn_add_annotation" />
+
+
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="right"
+    android:padding="16dp"
+    android:scrollbarStyle="outsideOverlay">
+
+    <!--<WebView-->
+    <!--android:id="@+id/webview1"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="212dp"-->
+    <!--android:layout_weight="0.83"-->
+    <!--android:gravity="top"-->
+    <!--android:text="@string/about1"-->
+    <!--android:visibility="visible"-->
+    <!--android:fontFamily="sans-serif-light" />-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:fadingEdge="horizontal"
+            android:gravity="center_vertical"
+            android:paddingBottom="8dp"
+            android:text="What is Organicity"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/accent"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:fadingEdge="horizontal"
+            android:gravity="center_vertical"
+            android:paddingBottom="8dp"
+            android:text="@string/about_what_is"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:fadingEdge="horizontal"
+            android:gravity="center_vertical"
+            android:paddingBottom="8dp"
+            android:text="What is the purpose of Organicity"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/accent"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:fadingEdge="horizontal"
+            android:gravity="center_vertical"
+            android:paddingBottom="8dp"
+            android:text="@string/about_purpose"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="16sp"
+            android:autoLink="web"
+            />
+
+    </LinearLayout>
+
+</ScrollView>

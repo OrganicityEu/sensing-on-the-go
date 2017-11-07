@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.ExperimentDetailsActivity"
+    android:orientation="vertical">
+
+    <!-- The ActionBar displayed at the top -->
+    <include
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            >
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:fadingEdge="horizontal"
+                android:gravity="center_vertical"
+                android:paddingBottom="8dp"
+                android:text="WifiScanner"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_marginLeft="8dp"
+                android:textColor="@color/accent"/>
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingBottom="8dp"
+                android:text="Description"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="16sp"
+                android:layout_marginLeft="8dp"
+                android:textColor="@android:color/black"/>
+
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:fadingEdge="horizontal"
+                android:paddingBottom="8dp"
+                android:layout_marginLeft="8dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@android:color/black"/>
+
+            <TextView
+                android:id="@+id/start_date"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:fadingEdge="horizontal"
+                android:paddingBottom="8dp"
+                android:text="Added: 25/07/2015"
+                android:layout_marginLeft="8dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@android:color/black"/>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:fadingEdge="horizontal"
+        android:paddingBottom="8dp"
+        android:text="Required Sensors:"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="8dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="16sp"
+        android:textColor="@color/accent"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:scrollbars="vertical"
+        />
+
+</LinearLayout>

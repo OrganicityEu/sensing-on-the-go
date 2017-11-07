@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">Sensing on the go</string>
+    <string name="home_hint">Select the Experiments tab to download and run experiments.</string>
+    <string name="send_data_now">Send Pending measurements</string>
+    <string name="empty" />
+    <string name="all_time">All time</string>
+    <string name="dataToday">Heatmap of data collected today</string>
+    <string name="statsTotalTime">Total time online</string>
+    <string name="statsNumOfExp">Experiments Run</string>
+    <string name="statsNumOfReadings">Measurements Gathered</string>
+    <string name="stats7Days">Histogram of data collected last week</string>
+    <string name="ranking">Ranking</string>
+    <string name="badges">Badges</string>
+    <string name="current_experiment">Current Experiment</string>
+    <string name="download_collected_data">Download collected Data</string>
+    <string name="select_asset">Select Asset</string>
+    <string name="annotation_domains">Annotation Domains</string>
+    <string name="Annotation">Annotation</string>
+    <string name="asset_name">Asset Name</string>
+    <string name="emptyAssetName">...</string>
+    <string name="asset_type">Asset Type</string>
+    <string name="btn_add_asset">Add Asset</string>
+    <string name="btn_add_annotation">Add Annotation</string>
+    <string name="organicity_accounts">Organicity Accounts</string>
+    <string name="title_activity_main">MainActivity2</string>
+    <string name="title_activity_details">Details</string>
+
+    <string name="pending_messages_template">Send %d pending measurements...</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="about_what_is">
+        OrganiCity is a new EU project that puts people at the centre of the development of future cities. The project brings together 3 leading smart cities and a total of 15 consortium members with great diversity in skills and experience.
+        \nOrganiCity is a close collaboration between Aarhus, London and Santander – three cities which all have extensive experience using so-called “smart city” technologies. These technologies include ways to improve cities’ services for citizens while at the same time reducing resource consumption.
+    </string>
+    <string name="about_purpose">
+        This software aims to provide an Android smartphone application augmenting the functionality of an existing Future Internet infrastructure.
+        \nThe Android software component distributes executable code on smartphone devices of a network of volunteers. The code is deployed as Ambient Dynamix plugins, performs calculations and produces sensor results, that are uploaded to a central server. There is a central software component responsible for distributing the plugins and collecting the results.
+    	\n\nFor more information regarding Organicity you can visit: http://organicity.eu
+		\n\nFor more information regarding the Ambient Dynamix framework you can visit: http://ambientdynamix.org
+    </string>
+    <string name="install">Install</string>
+    <string name="home">Home</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+</resources>

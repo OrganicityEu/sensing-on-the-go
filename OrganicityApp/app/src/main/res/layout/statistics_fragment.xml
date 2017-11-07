@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginTop="20dip"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/stats_name"
+                android:layout_width="fill_parent"
+                android:layout_height="20dip"
+                android:text="@string/empty"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/stats_email"
+                android:layout_width="fill_parent"
+                android:layout_height="20dip"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/empty" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity">
+
+        <LinearLayout
+            android:id="@+id/allTimeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toLeftOf="@+id/secondView"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="20dip"
+                android:text="@string/all_time"
+                android:textAlignment="center"
+                android:textAllCaps="true" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="20dip"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/statsNumOfExp" />
+
+            <TextView
+                android:id="@+id/stats_number_exp_value_a"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="20dip"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/statsTotalTime" />
+
+            <TextView
+                android:id="@+id/stats_time_value_a"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="20dip"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/statsNumOfReadings"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/stats_number_readings_value_a"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/ranking"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/rankingMessage"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/badges"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/badgesMessage"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <!--<Button-->
+            <!--android:id="@+id/downloadData"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginTop="20dip"-->
+            <!--android:text="@string/download_collected_data"-->
+            <!--android:textAppearance="?android:attr/textAppearanceSmall" />-->
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/secondView"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true" />
+
+        <LinearLayout
+            android:id="@+id/currentExperimentLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/secondView"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="20dip"
+                android:text="@string/current_experiment"
+                android:textAlignment="center"
+                android:textAllCaps="true" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="20dip"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/empty" />
+
+            <TextView
+                android:id="@+id/stats_number_exp_value"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="20dip"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/statsTotalTime" />
+
+            <TextView
+                android:id="@+id/stats_time_value"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="20dip"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/statsNumOfReadings"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/stats_number_readings_value"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/ranking"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/rankingExperimentMessage"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/badges"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/badgesExperimentMessage"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <Button
+                android:id="@+id/downloadDataExperiment"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dip"
+                android:text="@string/download_collected_data"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+
+        </LinearLayout>
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/heatmaptitle"
+        android:layout_width="fill_parent"
+        android:layout_height="20dip"
+        android:layout_marginTop="20dip"
+        android:text="@string/dataToday"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="20dip"
+        android:layout_marginTop="20dip"
+        android:text="@string/stats7Days"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <org.eazegraph.lib.charts.BarChart xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/barchart"
+        android:layout_width="fill_parent"
+        android:layout_height="150dip"
+        android:padding="10dip"
+        app:egBarWidth="20dip"
+        app:egFixedBarWidth="true"
+        app:egLegendHeight="40dip" />
+
+</merge>

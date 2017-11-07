@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/organicity_small_pink"
+        android:layout_gravity="center_vertical"
+        />
+
+    <Button
+        android:id="@+id/play"
+        android:text="Stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="5dp"
+        />
+
+    <Button
+        android:id="@+id/stop"
+        android:text="Exit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="5dp"
+        />
+
+</LinearLayout>

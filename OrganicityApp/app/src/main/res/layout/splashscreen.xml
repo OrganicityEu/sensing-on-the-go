@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:layout_centerVertical="true"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/font_size"
+        android:layout_marginTop="@dimen/font_size"
+        android:gravity="center"
+        android:text="SMARTPHONE EXPERIMENTATION"
+        android:textColor="@color/organicityPink"
+        android:textSize="@dimen/header_height"
+        android:layout_marginRight="@dimen/text_padding"
+        android:layout_marginLeft="@dimen/textview_height" />
+
+
+    <ImageView
+        android:id="@+id/splashscreen"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/textview_width"
+        android:layout_gravity="center"
+        android:src="@drawable/organicity_small_pink" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/font_size"
+        android:layout_marginEnd="@dimen/text_padding"
+        android:layout_marginStart="@dimen/text_padding"
+        android:layout_marginTop="@dimen/font_size"
+        android:gravity="center"
+        android:text="for the smart cities of the future"
+        android:textColor="@color/organicityPink"
+        android:textSize="@dimen/font_size" />
+</LinearLayout>
