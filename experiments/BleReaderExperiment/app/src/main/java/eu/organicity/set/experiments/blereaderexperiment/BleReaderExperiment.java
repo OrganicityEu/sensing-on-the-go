@@ -1,4 +1,4 @@
-package eu.organicity.set.experiments.wifiscannerexperiment;
+package eu.organicity.set.experiments.blereaderexperiment;
 
 import android.app.Service;
 import android.content.Intent;
@@ -17,13 +17,12 @@ import eu.organicity.set.app.sdk.IExperimentService;
 import eu.organicity.set.app.sdk.JsonMessage;
 import eu.organicity.set.app.sdk.Reading;
 
-public class WifiScannerExperiment extends Service {
+public class BleReaderExperiment extends Service {
 
-    private static final String TAG = "WiFiSensorService";
+    private static final String TAG = "BleReaderExperiment";
     public static String CONTEXT_TYPE;
 
-    public WifiScannerExperiment() {
-
+    public BleReaderExperiment() {
     }
 
     @Override
@@ -37,16 +36,12 @@ public class WifiScannerExperiment extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "on start command called");
-        if (intent != null) {
-            return START_STICKY;
-        } else {
-            stopSelf();
-            return START_NOT_STICKY;
-        }
+        return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
+        // Handler Thread handling all call back methods
         return mBinder;
     }
 
@@ -63,9 +58,8 @@ public class WifiScannerExperiment extends Service {
 
         @Override
         public void getExperimentResult(Bundle bundle, JsonMessage jsonMessage1) throws RemoteException {
-
             String jsonReading = bundle.getString("eu.organicity.set.sensors.location.LocationSensorService");
-            String jsonReadingWifiScan = bundle.getString("eu.organicity.set.sensors.wifi.WifiSensorService");
+            String jsonReadingBle = bundle.getString("eu.organicity.set.sensors.ble.BleReaderSensorService");
 
             //Add timestamp
             try {
@@ -73,7 +67,7 @@ public class WifiScannerExperiment extends Service {
                 jsonObject.put("timestamp",  System.currentTimeMillis());
 
                 Reading gpsReading = Reading.fromJson(jsonReading);
-                Reading wifiReading = Reading.fromJson(jsonReadingWifiScan);
+                Reading bleReading = Reading.fromJson(jsonReadingBle);
 
                 jsonMessage1.setState("ACTIVE");
 
@@ -87,16 +81,25 @@ public class WifiScannerExperiment extends Service {
                     jsonObject.put("eu.organicity.set.sensors.location.Latitude", "");
                 }
 
-                if (wifiReading != null) {
-                    Log.w("Experiment Message:", wifiReading.toJson());
-                    JSONObject noise = new JSONObject(wifiReading.getValue());
-                    jsonObject.put("eu.organicity.set.sensors.wifi.WifiList", noise.get("eu.organicity.set.sensors.wifi.WifiList"));
+                if (bleReading != null) {
+                    Log.w("Experiment Message:", bleReading.toJson());
+                    JSONObject ble = new JSONObject(bleReading.getValue());
+                    jsonObject.put("eu.organicity.set.sensors.ble.c3h8", ble.get("eu.organicity.set.sensors.ble.c3h8"));
+                    jsonObject.put("eu.organicity.set.sensors.ble.co", ble.get("eu.organicity.set.sensors.ble.co"));
+                    jsonObject.put("eu.organicity.set.sensors.ble.humidity", ble.get("eu.organicity.set.sensors.ble.humidity"));
+                    jsonObject.put("eu.organicity.set.sensors.ble.nh3", ble.get("eu.organicity.set.sensors.ble.nh3"));
+                    jsonObject.put("eu.organicity.set.sensors.ble.no2", ble.get("eu.organicity.set.sensors.ble.no2"));
+                    jsonObject.put("eu.organicity.set.sensors.ble.temperature", ble.get("eu.organicity.set.sensors.ble.temperature"));
                 } else {
-                    jsonObject.put("eu.organicity.set.sensors.wifi.WifiList", "");
+                    jsonObject.put("eu.organicity.set.sensors.ble.c3h8", "");
+                    jsonObject.put("eu.organicity.set.sensors.ble.co", "");
+                    jsonObject.put("eu.organicity.set.sensors.ble.humidity", "");
+                    jsonObject.put("eu.organicity.set.sensors.ble.nh3", "");
+                    jsonObject.put("eu.organicity.set.sensors.ble.no2", "");
+                    jsonObject.put("eu.organicity.set.sensors.ble.temperature", "");
                 }
 
-                if (gpsReading != null && wifiReading != null) {
-//                    jsonMessage1.setJSON(jsonObject);
+                if (gpsReading != null && bleReading != null) {
 
                     List<Reading> r = new ArrayList<>();
                     r.add(new Reading(jsonObject.toString(), CONTEXT_TYPE));
