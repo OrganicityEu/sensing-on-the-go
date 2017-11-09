@@ -60,7 +60,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     private Sensor[] sensors = {
             new Sensor("Location sensor", "eu.organicity.set.sensors.location", "LocationSensorService"),
             new Sensor("WiFi sensor", "eu.organicity.set.sensors.wifi", "WifiSensorService"),
-            new Sensor("Ble Reader sensor", "eu.organicity.set.sensors.ble", "BLESensorService"),
+            new Sensor("Ble Reader sensor", "eu.organicity.set.sensors.ble", "BleReaderSensorService"),
             new Sensor("Temperature sensor", "eu.organicity.set.sensors.temperature", "TemperatureSensorService"),
             new Sensor("Noise sensor", "eu.organicity.set.sensors.noise", "NoiseSensorService"),
 
@@ -143,14 +143,14 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         };
 
         experiment = new Experiment();
-        experiment.setName("Noise Level Experiment");
-        experiment.setPkg("eu.organicity.set.experiments.noiselevelexperiment");
-        experiment.setService("NoiseLevelExperiment");
+        experiment.setName("BLE Sensor Experiment");
+        experiment.setPkg("eu.organicity.set.experiments.bblereaderexperiment");
+        experiment.setService("BleReaderExperiment");
         experiment.setKey(experiment.getPkg() + "." + experiment.getService());
 
         List<Sensor> sen = new ArrayList<>();
         sen.add(sensors[0]);
-        sen.add(sensors[4]);
+        sen.add(sensors[2]);
         experiment.setSensors(sen);
 
         experimentConnected = false;
@@ -187,14 +187,14 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onClick(View view) {
                 PackageManager packageManager = getPackageManager();
-                try {
-                    PackageInfo pkInfo = packageManager.getPackageInfo("eu.organicity.set.experiments.noiselevelexperiment", 0);
+//                try {
+//                    PackageInfo pkInfo = packageManager.getPackageInfo("eu.organicity.set.experiments.noiselevelexperiment", 0);
 
                     startExperiment(experiment);
 
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
-                }
+//                } catch (PackageManager.NameNotFoundException e) {
+//                    e.printStackTrace();
+//                }
             }
         });
     }
@@ -204,25 +204,25 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             startSensor(sensor);
         }
 
-        String pkg = experiment.getPkg();
-        String key = pkg + "." + experiment.getService();
-
-        experimentConnection = new ExperimentService();
-        Intent serviceIntent = new Intent();
-        serviceIntent.setClassName(pkg, key);
-
-        if (experimentConnection.service != null) {
-            unbindService(experimentConnection);
-            stopService(serviceIntent);
-
-            AppModel.instance.experiment = null;
-        }
-        else {
-            AppModel.instance.experiment = experiment;
-
-            bindService(serviceIntent, experimentConnection, Context.BIND_AUTO_CREATE);
-            startService(serviceIntent);
-        }
+//        String pkg = experiment.getPkg();
+//        String key = pkg + "." + experiment.getService();
+//
+//        experimentConnection = new ExperimentService();
+//        Intent serviceIntent = new Intent();
+//        serviceIntent.setClassName(pkg, key);
+//
+//        if (experimentConnection.service != null) {
+//            unbindService(experimentConnection);
+//            stopService(serviceIntent);
+//
+//            AppModel.instance.experiment = null;
+//        }
+//        else {
+//            AppModel.instance.experiment = experiment;
+//
+//            bindService(serviceIntent, experimentConnection, Context.BIND_AUTO_CREATE);
+//            startService(serviceIntent);
+//        }
     }
 
     private void startSensor(Sensor sensor) {
