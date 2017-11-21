@@ -31,6 +31,8 @@ import eu.organicity.set.app.utils.Constants;
 import eu.smartsantander.androidExperimentation.jsonEntities.Experiment;
 import eu.smartsantander.androidExperimentation.jsonEntities.Sensor;
 
+import static eu.organicity.set.app.services.SchedulerService.STOP;
+
 /**
  * Created by chris on 06/07/2017.
  */
@@ -120,7 +122,7 @@ public class ExperimentsCardAdapter extends RecyclerView.Adapter<ExperimentsCard
         boolean running = false;
         if (AppModel.instance.experiment != null && AppModel.instance.experiment.getId().equals(experiment.getId())) {
             runningExperiment = AppModel.instance.experiment;
-            runningExperiment.setState(Experiment.State.RUNNING);
+            runningExperiment.setState(experiment.getState());
             running = true;
         }
 
@@ -188,13 +190,14 @@ public class ExperimentsCardAdapter extends RecyclerView.Adapter<ExperimentsCard
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(fragment.getContext(), SchedulerService.class);
+                intent.putExtra(EXPERIMENT, experiment);
 
                 if (text.equals("start")) {
-                    intent.putExtra(EXPERIMENT, experiment);
                     fragment.getActivity().startService(intent);
                 }
                 else {
-                    fragment.getActivity().stopService(intent);
+                    intent.putExtra(STOP, true);
+                    fragment.getActivity().startService(intent);
                 }
             }
         });

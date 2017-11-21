@@ -1,10 +1,14 @@
 package eu.organicity.set.app.activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,6 +34,13 @@ public class MainActivity extends AppCompatActivity
     private int selectedItemId;
     private Toolbar toolbar;
 
+    BroadcastReceiver killReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            finishAffinity();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +63,15 @@ public class MainActivity extends AppCompatActivity
 
         Intent intent = new Intent(this, SchedulerService.class);
         startService(intent);
+
+        IntentFilter intentFilter = new IntentFilter("kill-organicity");
+        LocalBroadcastManager.getInstance(this).registerReceiver(killReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(killReceiver);
     }
 
     @Override

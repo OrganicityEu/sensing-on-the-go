@@ -1,7 +1,12 @@
 package eu.organicity.set.app.activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +25,13 @@ import eu.smartsantander.androidExperimentation.jsonEntities.Experiment;
 public class ExperimentDetailsActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
+
+    BroadcastReceiver killReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            finishAffinity();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +64,16 @@ public class ExperimentDetailsActivity extends AppCompatActivity {
         list.setLayoutManager(new LinearLayoutManager(this));
         SensorsDetailsAdapter adapter = new SensorsDetailsAdapter(experiment.getSensors());
         list.setAdapter(adapter);
+
+
+        IntentFilter intentFilter = new IntentFilter("kill-organicity");
+        LocalBroadcastManager.getInstance(this).registerReceiver(killReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(killReceiver);
     }
 
 }

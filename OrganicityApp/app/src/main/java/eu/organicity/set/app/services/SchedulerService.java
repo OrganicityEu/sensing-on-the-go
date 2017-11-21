@@ -16,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import eu.organicity.set.app.AppModel;
 import eu.organicity.set.app.R;
@@ -57,22 +57,36 @@ public class SchedulerService extends Service implements SensorConnection.Sensor
     private static final int STOP_CODE = 211;
     private static final long DELAY = 60000;
 
-    private Map<String, List<JSONObject>> sensorsResults;
-
-
     private HashSet<String> connected;
 
     private BroadcastReceiver playReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Notification play button clicked!");
-            stopExperiment(AppModel.instance.experiment);
+            Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+            sendBroadcast(it);
+
+            Experiment exp = AppModel.instance.experiment;
+
+            if (exp != null) {
+                if (exp.getState() == Experiment.State.RUNNING) {
+                    stopExperiment(exp);
+                }
+                else {
+                    startExperiment(exp);
+                }
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "No last experiment found", Toast.LENGTH_SHORT).show();
+            }
         }
     };
 
     private BroadcastReceiver stopReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+            sendBroadcast(it);
+
             if (AppModel.instance.experiment != null) {
                 stopExperiment(AppModel.instance.experiment);
             }
@@ -81,12 +95,17 @@ public class SchedulerService extends Service implements SensorConnection.Sensor
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.cancel(id);
 
+            Intent kill = new Intent("kill-organicity");
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(kill);
+
             stopSelf();
         }
     };
 
     private Handler handler;
     private Runnable runnable;
+    private RemoteViews notificationView;
+    private Notification.Builder builder;
 
     public SchedulerService() {
     }
@@ -96,7 +115,6 @@ public class SchedulerService extends Service implements SensorConnection.Sensor
         super.onCreate();
         Log.d(TAG, "Scheduler created!");
 
-        sensorsResults = new HashMap<>();
         AppModel.instance.started = new ArrayList<>();
         AppModel.instance.connections = new HashMap<>();
         connected = new HashSet<>();
@@ -124,7 +142,7 @@ public class SchedulerService extends Service implements SensorConnection.Sensor
                     }
                 }
 
-                if (AppModel.instance.experimentConnection != null && AppModel.instance.experimentConnection.service != null && sensorsResults != null) {
+                if (AppModel.instance.experimentConnection != null && AppModel.instance.experimentConnection.service != null) {
                     boolean run = true;
 
                     if (AppModel.instance.readingStorage.getReadingsCount() == 0) {
@@ -149,7 +167,6 @@ public class SchedulerService extends Service implements SensorConnection.Sensor
                                 e.printStackTrace();
                             }
 
-//                            onContextEvent(result);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -176,25 +193,26 @@ public class SchedulerService extends Service implements SensorConnection.Sensor
         Intent stopIntent = new Intent("organicity-stop-intent");
         PendingIntent stoppIntent = PendingIntent.getBroadcast(getApplicationContext(), STOP_CODE, stopIntent, 0);
 
-        RemoteViews notificationView = new RemoteViews(getPackageName(), R.layout.notification_layout);
+        notificationView = new RemoteViews(getPackageName(), R.layout.notification_layout);
         notificationView.setOnClickPendingIntent(R.id.play, playpIntent);
         notificationView.setOnClickPendingIntent(R.id.stop, stoppIntent);
 
+        notificationView.setTextViewText(R.id.play, "Play");
+
         // build notification
         // the addAction re-use the same intent to keep the example short
-        Notification n = new Notification.Builder(getApplicationContext())
+        builder = new Notification.Builder(getApplicationContext())
                 .setContentTitle("Organicity")
                 .setContentText("")
                 .setContent(notificationView)
                 .setSmallIcon(R.drawable.status_bar_icon)
                 .setContentIntent(pIntent)
                 .setOngoing(true)
-                .setAutoCancel(false)
-                .build();
+                .setAutoCancel(true);
 
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(id, n);
+        mNotificationManager.notify(id, builder.build());
 
         handler.post(runnable);
     }
@@ -218,7 +236,10 @@ public class SchedulerService extends Service implements SensorConnection.Sensor
 
         AppModel.instance.started.clear();
 
-//        stopSelf();
+        if (AppModel.instance.experiment != null) {
+            experimentStopped();
+        }
+
         super.onDestroy();
     }
 
@@ -343,6 +364,9 @@ public class SchedulerService extends Service implements SensorConnection.Sensor
         Log.d(TAG, "Starting experiment service: " + experiment.getName() + " in package: " + experiment.getPkg());
         bindService(serviceIntent, AppModel.instance.experimentConnection, Context.BIND_AUTO_CREATE);
         startService(serviceIntent);
+
+        notificationView.setTextViewText(R.id.play, "Stop");
+        updateNotification();
     }
 
     private void stopExperiment(Experiment experiment) {
@@ -361,9 +385,22 @@ public class SchedulerService extends Service implements SensorConnection.Sensor
             stopService(serviceIntent);
 
             handler.removeCallbacks(runnable);
+
+            experimentStopped();
+
+            notificationView.setTextViewText(R.id.play, "Start");
+            updateNotification();
+
+            Toast.makeText(getApplicationContext(), "Experiment stopped", Toast.LENGTH_SHORT).show();
         } else {
             Log.e(TAG, "Cannot stop null experiment!");
         }
+    }
+
+    private void updateNotification() {
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(id, builder.build());
     }
 
     @Override
@@ -397,15 +434,6 @@ public class SchedulerService extends Service implements SensorConnection.Sensor
 
     @Override
     public void updateSensorResults(String service, JsonMessage result) {
-//        List<JSONObject> list = sensorsResults.get(service);
-//        if (list == null) {
-//            list = new ArrayList<>();
-//        }
-//
-//        list.add(result);
-//
-//        sensorsResults.put(service, list);
-
         try {
             JSONArray arr = new JSONArray(result.getPayload());
             Reading reading = Reading.fromJson(arr.get(0).toString());
