@@ -99,12 +99,12 @@ public class LocationSensorService extends Service implements GoogleApiClient.Co
                     // for ActivityCompat#requestPermissions for more details.
                     return;
                 }
-                Toast.makeText(getApplicationContext(), "Permissions Granted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Location Sensors: Permissions Granted", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onPermissionDenied() {
-                Toast.makeText(getApplicationContext(), "Permissions Denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Location Sensors: Permissions Denied", Toast.LENGTH_SHORT).show();
             }
         });
     }
