@@ -1,26 +1,25 @@
 package eu.organicity.set.app.activities;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.RemoteException;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,62 +27,74 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 
-import eu.organicity.set.app.AppModel;
 import eu.organicity.set.app.R;
 import eu.organicity.set.app.SimpleAdapter;
-import eu.organicity.set.app.sdk.IExperimentService;
+import eu.organicity.set.app.connections.ExperimentConnection;
+import eu.organicity.set.app.connections.SensorConnection;
+import eu.organicity.set.app.operations.Communication;
 import eu.organicity.set.app.sdk.ISensorCallback;
 import eu.organicity.set.app.sdk.ISensorService;
 import eu.organicity.set.app.sdk.JsonMessage;
 import eu.organicity.set.app.sdk.Reading;
+import eu.organicity.set.app.views.LogView;
 import eu.smartsantander.androidExperimentation.jsonEntities.Experiment;
+import eu.smartsantander.androidExperimentation.jsonEntities.ReadingStorage;
 import eu.smartsantander.androidExperimentation.jsonEntities.Sensor;
+import eu.smartsantander.androidExperimentation.util.Discoverable;
 
-public class TestActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
+public class TestActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, ExperimentConnection.ExperimentCallbacks, SensorConnection.SensorCallback {
 
-    public static final String ACTION_PICK_PLUGIN = "organicity.intent.action.PICK_PLUGIN";
+    public static final String ACTION_PICK_DEVELOPER_PLUGIN = "organicity.intent.action.PICK_DEVELOPER_PLUGIN";
+    public static final String ACTION_PICK_DEVELOPER_EXPERIMENT = "organicity.intent.action.PICK_DEVELOPER_EXPERIMENT";
+
     static final String KEY_PKG = "pkg";
     static final String KEY_SERVICENAME = "servicename";
     static final String KEY_ACTIONS = "actions";
     static final String KEY_CATEGORIES = "categories";
 
-    static final String TAG = "MainActivity";
+    static final String TAG = "TestActivity";
     private static final long DELAY = 5000;
     private List<String> started;
     private Handler handler;
     private Runnable runnable;
 
-    private HashMap<String, AidlConnectionService> connections;
-    private Sensor[] sensors = {
-            new Sensor("Location sensor", "eu.organicity.set.sensors.location", "LocationSensorService"),
-            new Sensor("WiFi sensor", "eu.organicity.set.sensors.wifi", "WifiSensorService"),
-            new Sensor("Ble Reader sensor", "eu.organicity.set.sensors.ble", "BleReaderSensorService"),
-            new Sensor("Temperature sensor", "eu.organicity.set.sensors.temperature", "TemperatureSensorService"),
-            new Sensor("Noise sensor", "eu.organicity.set.sensors.noise", "NoiseSensorService"),
+    private LogView logView;
 
-    };
+    private HashMap<String, SensorConnection> connections = new HashMap<>();
+    private ExperimentConnection experimentConnection;
 
+    private HashSet<String> connected;
     private HashMap<String, List<JSONObject>> sensorsResults;
+    private ReadingStorage readingStorage;
 
-    private ExperimentService experimentConnection;
-    private boolean experimentConnected;
+    private ListView list;
+    private Button run, stop, clear;
 
-    Experiment experiment;
+    private PackageBroadcastReceiver packageBroadcastReceiver;
+    private IntentFilter packageFilter;
+    private ArrayList<HashMap<String, String>> services;
+    private ArrayList<String> categories;
+    private SimpleAdapter itemAdapter;
+    private Experiment experiment;
+    private ArrayList<Sensor> runningSensors;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_old);
+        setContentView(R.layout.activity_developer);
+
+        readingStorage = new ReadingStorage();
+        connected = new HashSet<>();
 
         handler = new Handler();
         runnable = new Runnable() {
             @Override
             public void run() {
                 for (String key : started) {
-                    ISensorService service = connections.get(key).aidlService;
+                    ISensorService service = connections.get(key).service;
                     ISensorCallback callback = connections.get(key).callback;
 
                     if (service != null && callback != null) {
@@ -100,7 +111,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (experimentConnection != null && experimentConnection.service != null && sensorsResults != null) {
                     boolean run = true;
 
-                    if (AppModel.instance.readingStorage.getReadingsCount() == 0) {
+                    if (readingStorage.getReadingsCount() == 0) {
                         run = false;
                     }
 
@@ -119,14 +130,19 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
                         JsonMessage result = new JsonMessage();
 
                         try {
-                            experimentConnection.service.getExperimentResult(AppModel.instance.readingStorage.getBundle(), result);
+                            experimentConnection.service.getExperimentResult(readingStorage.getBundle(), result);
 
                             try {
                                 JSONArray array = new JSONArray(result.getPayload());
-                                JSONObject res = new JSONObject((String) array.getJSONObject(0).get("value"));
+                                final JSONObject res = new JSONObject((String) array.getJSONObject(0).get("value"));
 
-                                AppModel.publishMessage(getApplicationContext(), res.toString());
                                 Log.d(TAG, "Result: " + res.toString());
+                                TestActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        logView.appendToLog(res.toString());
+                                    }
+                                });
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -142,35 +158,72 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         };
 
-        experiment = new Experiment();
-        experiment.setName("BLE Sensor Experiment");
-        experiment.setPkg("eu.organicity.set.experiments.bblereaderexperiment");
-        experiment.setService("BleReaderExperiment");
-        experiment.setKey(experiment.getPkg() + "." + experiment.getService());
-
-        List<Sensor> sen = new ArrayList<>();
-        sen.add(sensors[0]);
-        sen.add(sensors[2]);
-        experiment.setSensors(sen);
-
-        experimentConnected = false;
         sensorsResults = new HashMap<>();
         started = new ArrayList<>();
         connections = new HashMap<>();
 
-        fillPluginList();
-        itemAdapter = new SimpleAdapter(this, R.layout.plugin_row, sensors);
-//        itemAdapter =
-//                new SimpleAdapter(this,
-//                        services,
-//                        R.layout.plugin_row,
-//                        new String[]{KEY_PKG, KEY_SERVICENAME, KEY_ACTIONS, KEY_CATEGORIES},
-//                        new int[]{R.id.pkg, R.id.servicename, R.id.actions, R.id.categories}
-//                );
+        logView = (LogView) findViewById(R.id.logview);
+        logView.setMovementMethod(new ScrollingMovementMethod());
 
-        ListView list = (ListView) findViewById(android.R.id.list);
-        list.setAdapter(itemAdapter);
+        list = (ListView) findViewById(android.R.id.list);
+        list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
         list.setOnItemClickListener(this);
+
+        itemAdapter = new SimpleAdapter(this, R.layout.plugin_row);
+        list.setAdapter(itemAdapter);
+
+        fillPluginList();;
+
+        run = (Button) findViewById(R.id.run);
+        run.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ArrayList<Discoverable> checkedItems = itemAdapter.getCheckedItems();
+
+                runningSensors = new ArrayList<>();
+
+                for (Discoverable plugin : checkedItems) {
+                    if (plugin.getType().equals("sensor")) {
+                        Sensor s = (Sensor) plugin;
+                        runningSensors.add(s);
+                    }
+                    else if (plugin.getType().equals("experiment")) {
+                        experiment = (Experiment) plugin;
+                    }
+                }
+
+                if (runningSensors.size() > 0) {
+                    setupSensorServices(runningSensors);
+                }
+            }
+        });
+
+        stop = (Button) findViewById(R.id.stop);
+        stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (runningSensors != null && runningSensors.size() > 0) {
+                    stopSensors(runningSensors);
+                }
+
+                if (experiment != null) {
+                    stopExperiment(experiment);
+                }
+            }
+        });
+
+        clear = (Button) findViewById(R.id.clear);
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TestActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        logView.setText("");
+                    }
+                });
+            }
+        });
 
         packageBroadcastReceiver = new PackageBroadcastReceiver();
         packageFilter = new IntentFilter();
@@ -181,85 +234,119 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         packageFilter.addDataScheme("package");
 
         handler.post(runnable);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                PackageManager packageManager = getPackageManager();
-//                try {
-//                    PackageInfo pkInfo = packageManager.getPackageInfo("eu.organicity.set.experiments.noiselevelexperiment", 0);
-
-                    startExperiment(experiment);
-
-//                } catch (PackageManager.NameNotFoundException e) {
-//                    e.printStackTrace();
-//                }
-            }
-        });
     }
 
-    private void startExperiment(Experiment experiment) {
-        for (Sensor sensor : experiment.getSensors()) {
-            startSensor(sensor);
+    private void setupSensorServices(List<Sensor> sensors) {
+        for (Sensor s : sensors) {
+            SensorConnection connection = new SensorConnection(s.getService(), s.getPkg(), this);
+
+            connections.put(s.getKey(), connection);
         }
 
-//        String pkg = experiment.getPkg();
-//        String key = pkg + "." + experiment.getService();
-//
-//        experimentConnection = new ExperimentService();
-//        Intent serviceIntent = new Intent();
-//        serviceIntent.setClassName(pkg, key);
-//
-//        if (experimentConnection.service != null) {
-//            unbindService(experimentConnection);
-//            stopService(serviceIntent);
-//
-//            AppModel.instance.experiment = null;
-//        }
-//        else {
-//            AppModel.instance.experiment = experiment;
-//
-//            bindService(serviceIntent, experimentConnection, Context.BIND_AUTO_CREATE);
-//            startService(serviceIntent);
-//        }
+        startSensors(sensors);
     }
 
-    private void startSensor(Sensor sensor) {
-        String name = sensor.getName();
-        String serviceName = sensor.getService();
-        String pkg = sensor.getPkg();
+    private void stopSensors(ArrayList<Sensor> sensors) {
+        for (Sensor sensor : sensors) {
+            if (sensor.getType().equals("sensor")) {
+                Log.d(TAG, "Stopping sensor: " + sensor.getName() + " in package: " + sensor.getPkg());
+                stopSensor(sensor);
+            }
+        }
+    }
 
-        String key = pkg + "." + serviceName;
+    private void stopSensor(Sensor sensor) {
+        String pkg = sensor.getPkg();
+        String key = sensor.getKey();
 
         boolean installed = false;
         PackageManager packageManager = getPackageManager();
         try {
-            PackageInfo pkInfo = packageManager.getPackageInfo(pkg, 0);
+            packageManager.getPackageInfo(pkg, 0);
+            installed = true;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Cannot stop uninstalled sensor!");
+            e.printStackTrace();
+        }
+
+        if (installed && started.contains(key)) {
+            Intent serviceIntent = new Intent();
+            serviceIntent.setClassName(pkg, key);
+
+            unbindService(connections.get(key));
+            connections.get(key).service =  null;
+            boolean result = stopService(serviceIntent);
+            Log.d(TAG, "Stopping service " + key + " with result " + result);
+            started.remove(key);
+        }
+    }
+
+    private void startSensors(List<Sensor> sensors) {
+        for (Sensor sensor : sensors) {
+            if (sensor instanceof Sensor) {
+                Log.d(TAG, "Starting sensor: " + sensor.getName() + " in package: " + sensor.getPkg());
+                startSensor(sensor);
+            }
+        }
+    }
+
+    private void startSensor(Sensor sensor) {
+        String pkg = sensor.getPkg();
+        String key = sensor.getKey();
+
+        boolean installed = false;
+        PackageManager packageManager = getPackageManager();
+        try {
+            packageManager.getPackageInfo(pkg, 0);
             installed = true;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
 
-        if (!installed) {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("market://details?id=" + pkg));
-            startActivity(intent);
-        }
-        else {
+
+        if (installed && !started.contains(key)) {
             Intent serviceIntent = new Intent();
             serviceIntent.setClassName(pkg, key);
 
-            if (started.contains(key)) {
-                unbindService(connections.get(key));
-                stopService(serviceIntent);
-                started.remove(key);
-            }
-            else {
-                bindService(serviceIntent, connections.get(key), Context.BIND_AUTO_CREATE);
-                startService(serviceIntent);
-                started.add(key);
-            }
+            bindService(serviceIntent, connections.get(key), Context.BIND_AUTO_CREATE);
+            startService(serviceIntent);
+            started.add(key);
+        }
+    }
+
+    private void startExperiment(Experiment experiment) {
+        String pkg = experiment.getPkg();
+        String key = experiment.getKey();
+
+        experimentConnection = new ExperimentConnection(this);
+        Intent serviceIntent = new Intent();
+        serviceIntent.setClassName(pkg, key);
+
+        Log.d(TAG, "Starting experiment service: " + experiment.getName() + " in package: " + experiment.getPkg());
+        bindService(serviceIntent, experimentConnection, Context.BIND_AUTO_CREATE);
+        startService(serviceIntent);
+    }
+
+    private void stopExperiment(Experiment experiment) {
+//        stopSensors(experiment);
+
+        if (experimentConnection != null && experimentConnection.service != null) {
+            Log.d(TAG, "Stopping experiment service: " + experiment.getName() + " in package: " + experiment.getPkg());
+
+            String pkg = experiment.getPkg();
+            String key = pkg + "." + experiment.getService();
+
+            Intent serviceIntent = new Intent();
+            serviceIntent.setClassName(pkg, key);
+
+            unbindService(experimentConnection);
+            stopService(serviceIntent);
+
+            handler.removeCallbacks(runnable);
+
+            Toast.makeText(getApplicationContext(), "Experiment stopped", Toast.LENGTH_SHORT).show();
+        } else {
+            Log.e(TAG, "Cannot stop null experiment!");
         }
     }
 
@@ -278,42 +365,34 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
         Log.d(TAG, "onListItemClick: " + position);
-//        String serviceName = services.get(position).get(KEY_SERVICENAME);
-//        String pkg = services.get(position).get(KEY_PKG);
 
-        String name = sensors[position].getName();
-        String serviceName = sensors[position].getService();
-        String pkg = sensors[position].getPkg();
-
-        String key = pkg + "." + serviceName;
+        Discoverable sensor = itemAdapter.getItem(position);
 
         boolean installed = false;
         PackageManager packageManager = getPackageManager();
         try {
-            PackageInfo pkInfo = packageManager.getPackageInfo(pkg, 0);
+            packageManager.getPackageInfo(sensor.getPkg(), 0);
             installed = true;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
 
         if (!installed) {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("market://details?id=" + pkg));
-            startActivity(intent);
+            Toast.makeText(getApplicationContext(), "Package not found. Try reinstalling.", Toast.LENGTH_SHORT).show();
         }
         else {
             Intent serviceIntent = new Intent();
-            serviceIntent.setClassName(pkg, key);
+            serviceIntent.setClassName(sensor.getPkg(), sensor.getService());
 
-            if (started.contains(key)) {
-                unbindService(connections.get(key));
+            if (started.contains(sensor.getKey())) {
+                unbindService(connections.get(sensor.getKey()));
                 stopService(serviceIntent);
-                started.remove(key);
+                started.remove(sensor.getKey());
             }
             else {
-                bindService(serviceIntent, connections.get(key), Context.BIND_AUTO_CREATE);
+                bindService(serviceIntent, connections.get(sensor.getKey()), Context.BIND_AUTO_CREATE);
                 startService(serviceIntent);
-                started.add(key);
+                started.add(sensor.getKey());
             }
         }
     }
@@ -350,84 +429,152 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void fillPluginList() {
-        services = new ArrayList<HashMap<String, String>>();
-        categories = new ArrayList<String>();
+        services = new ArrayList<>();
+        categories = new ArrayList<>();
 
-        PackageManager packageManager = getPackageManager();
+        final ArrayList<Discoverable> discoverables = new ArrayList<>();
 
-        Intent baseIntent = new Intent(ACTION_PICK_PLUGIN);
-        baseIntent.setFlags(Intent.FLAG_DEBUG_LOG_RESOLUTION);
+        new AsyncTask<Object, Object, List<Sensor>>() {
 
-        List<ResolveInfo> list = packageManager.queryIntentServices(baseIntent,
-                PackageManager.GET_RESOLVED_FILTER);
+            @Override
+            protected List<Sensor> doInBackground(Object... voids) {
+                try {
+                    return Communication.getInstance().getSensors();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
 
-        Log.d(TAG, "fillPluginList: " + list);
+            @Override
+            protected void onPostExecute(List<Sensor> result) {
+                super.onPostExecute(result);
+                discoverables.addAll(result);
+                itemAdapter.setItems(discoverables);
+                itemAdapter.notifyDataSetChanged();
+            }
+        }.execute();
 
         connections.clear();
 
-        if (list.size() > 0) {
-            findViewById(android.R.id.empty).setVisibility(View.GONE);
-        }
-        else {
-            findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
-        }
+        PackageManager packageManager = getPackageManager();
 
-        for (int i = 0; i < list.size(); ++i) {
-            ResolveInfo info = list.get(i);
+        Intent sensorsIntent = new Intent(ACTION_PICK_DEVELOPER_PLUGIN);
+        sensorsIntent.setFlags(Intent.FLAG_DEBUG_LOG_RESOLUTION);
+
+        Intent experimentIntent = new Intent(ACTION_PICK_DEVELOPER_EXPERIMENT);
+        experimentIntent.setFlags(Intent.FLAG_DEBUG_LOG_RESOLUTION);
+
+        List<ResolveInfo> resList = packageManager.queryIntentServices(sensorsIntent,
+                PackageManager.GET_RESOLVED_FILTER);
+
+        List<ResolveInfo> expResList = packageManager.queryIntentServices(experimentIntent,
+                PackageManager.GET_RESOLVED_FILTER);
+
+        for (int i = 0; i < resList.size(); ++i) {
+            ResolveInfo info = resList.get(i);
             ServiceInfo sinfo = info.serviceInfo;
-            IntentFilter filter = info.filter;
-            Log.d(TAG, "fillPluginList: i: " + i + "; sinfo: " + sinfo + ";filter: " + filter);
+
             if (sinfo != null) {
                 HashMap<String, String> item = new HashMap<String, String>();
                 item.put(KEY_PKG, sinfo.packageName);
-
                 item.put(KEY_SERVICENAME, sinfo.name);
 
-                String firstCategory = null;
-                if (filter != null) {
-                    StringBuilder actions = new StringBuilder();
-                    for (Iterator<String> actionIterator = filter.actionsIterator(); actionIterator.hasNext(); ) {
-                        String action = actionIterator.next();
-                        if (actions.length() > 0)
-                            actions.append(",");
-                        actions.append(action);
-                    }
-                    StringBuilder categories = new StringBuilder();
-                    for (Iterator<String> categoryIterator = filter.categoriesIterator();
-                         categoryIterator.hasNext(); ) {
-                        String category = categoryIterator.next();
-                        if (firstCategory == null)
-                            firstCategory = category;
-                        if (categories.length() > 0)
-                            categories.append(",");
-                        categories.append(category);
-                    }
-                    item.put(KEY_ACTIONS, new String(actions));
-                    item.put(KEY_CATEGORIES, new String(categories));
-                } else {
-                    item.put(KEY_ACTIONS, "<null>");
-                    item.put(KEY_CATEGORIES, "<null>");
-                }
-                if (firstCategory == null)
-                    firstCategory = "";
-                categories.add(firstCategory);
                 services.add(item);
 
-                AidlConnectionService connection = new AidlConnectionService(item.get(KEY_SERVICENAME), item.get(KEY_PKG));
+                Sensor s = new Sensor(sinfo.name, sinfo.packageName, sinfo.name);
+                s.setKey(sinfo.name);
 
-                connections.put(item.get(KEY_SERVICENAME), connection);
-//                callbacks.put(item.get(KEY_SERVICENAME), callback);
+                discoverables.add(s);
             }
         }
+
+        for (int i = 0; i < expResList.size(); ++i) {
+            ResolveInfo info = expResList.get(i);
+            ServiceInfo sinfo = info.serviceInfo;
+
+            if (sinfo != null) {
+                HashMap<String, String> item = new HashMap<String, String>();
+                item.put(KEY_PKG, sinfo.packageName);
+                item.put(KEY_SERVICENAME, sinfo.name);
+
+                services.add(item);
+
+                Experiment exp = new Experiment();
+                exp.setName(sinfo.name);
+                exp.setPkg(sinfo.packageName);
+                exp.setService(sinfo.name);
+                exp.setKey(sinfo.name);
+
+                discoverables.add(exp);
+            }
+        }
+
+        itemAdapter.setItems(discoverables);
+        itemAdapter.notifyDataSetChanged();
+
+
         Log.d(TAG, "services: " + services);
         Log.d(TAG, "categories: " + categories);
     }
 
-    private PackageBroadcastReceiver packageBroadcastReceiver;
-    private IntentFilter packageFilter;
-    private ArrayList<HashMap<String, String>> services;
-    private ArrayList<String> categories;
-    private SimpleAdapter itemAdapter;
+    @Override
+    public void experimentStarted() {
+
+    }
+
+    @Override
+    public void experimentStopped() {
+
+    }
+
+    @Override
+    public void sensorConnected(String service) {
+        Log.d(TAG, "Sensor " + service + " connected");
+        connected.add(service);
+
+        if (experiment == null) {
+            Log.d(TAG, "Experiment is null");
+            return;
+        }
+
+        boolean start = true;
+        for (Sensor s : runningSensors) {
+            if (!connected.contains(s.getService())) {
+                start = false;
+            }
+        }
+
+        if (start) {
+            startExperiment(experiment);
+        }
+    }
+
+    @Override
+    public void sensorDisconnected(String service) {
+        Log.d(TAG, "Sensor " + service + " disconnected");
+
+        connected.remove(service);
+    }
+
+    @Override
+    public void updateSensorResults(String service, JsonMessage result) {
+        try {
+            JSONArray arr = new JSONArray(result.getPayload());
+            final Reading reading = Reading.fromJson(arr.get(0).toString());
+            readingStorage.pushReading(reading);
+
+            TestActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    logView.appendToLog(reading.toJson());
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     class PackageBroadcastReceiver extends BroadcastReceiver {
         private static final String LOG_TAG = "PackageBroadcastReceive";
@@ -437,61 +584,6 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             services.clear();
             fillPluginList();
             itemAdapter.notifyDataSetChanged();
-        }
-    }
-
-    class ExperimentService implements ServiceConnection {
-        IExperimentService service;
-
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            service = IExperimentService.Stub.asInterface(iBinder);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.e(TAG, "Service has unexpectedly disconnected");
-            service = null;
-        }
-    }
-
-    class AidlConnectionService implements ServiceConnection {
-        ISensorService aidlService;
-        ISensorCallback callback;
-        String serviceName;
-        String servicePackage;
-
-        AidlConnectionService(String name, String pkg) {
-            this.serviceName = name;
-            this.servicePackage = pkg;
-
-            this.callback = new ISensorCallback.Stub() {
-                @Override
-                public void handlePluginInfo(JsonMessage message) throws RemoteException {
-                    if (message == null || message.getPayload().length() == 0) {
-                        return;
-                    }
-
-                    try {
-                        JSONArray arr = new JSONArray(message.getPayload());
-                        Reading reading = Reading.fromJson(arr.get(0).toString());
-                        AppModel.instance.readingStorage.pushReading(reading);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            aidlService = ISensorService.Stub.asInterface(iBinder);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.e(TAG, "Service has unexpectedly disconnected");
-            callback = null;
         }
     }
 }

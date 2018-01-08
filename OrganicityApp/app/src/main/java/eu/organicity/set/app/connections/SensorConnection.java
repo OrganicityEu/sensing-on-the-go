@@ -42,6 +42,8 @@ public class SensorConnection implements ServiceConnection {
 
                     Log.d(TAG, serviceName + ": Message received: " + reading.toJson());
                     AppModel.instance.readingStorage.pushReading(reading);
+
+                    scheduler.updateSensorResults(serviceName, message);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

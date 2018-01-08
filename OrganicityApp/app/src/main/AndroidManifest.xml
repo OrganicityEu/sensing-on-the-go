@@ -57,13 +57,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
         </activity>
-
         <activity
             android:name=".activities.TestActivity"
             android:theme="@style/AppCompatTheme" />
 
-        <service android:name=".services.SchedulerService"
-            android:exported="false"/>
+        <service
+            android:name=".services.SchedulerService"
+            android:exported="false" />
 
     </application>
 

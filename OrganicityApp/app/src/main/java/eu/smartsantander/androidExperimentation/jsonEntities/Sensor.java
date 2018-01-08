@@ -5,11 +5,13 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 
+import eu.smartsantander.androidExperimentation.util.Discoverable;
+
 /**
  * Created by chris on 19/10/2017.
  */
 
-public class Sensor implements Serializable {
+public class Sensor implements Serializable, Discoverable {
 
     private String name;
     private String pkg;
@@ -62,6 +64,11 @@ public class Sensor implements Serializable {
 
     public String getKey() {
         return key;
+    }
+
+    @Override
+    public String getType() {
+        return "sensor";
     }
 
     public void setKey(String key) {

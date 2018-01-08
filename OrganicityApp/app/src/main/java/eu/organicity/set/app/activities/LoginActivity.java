@@ -33,6 +33,7 @@ public class LoginActivity extends Activity {
 
     private View logo;
     private View form;
+    private TextView developer;
 
     /**
      * Duration of wait
@@ -121,16 +122,26 @@ public class LoginActivity extends Activity {
             }
         });
 
-        anonymousTextView.setOnLongClickListener(new View.OnLongClickListener() {
+//        anonymousTextView.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View view) {
+//                 /* Create an Intent that will start the Menu-Activity. */
+//                final Intent mainIntent = new Intent(LoginActivity.this, TestActivity.class);
+////                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                LoginActivity.this.startActivity(mainIntent);
+//                LoginActivity.this.finish();
+//
+//                return true;
+//            }
+//        });
+
+        developer = (TextView) findViewById(R.id.developer);
+        developer.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View view) {
-                 /* Create an Intent that will start the Menu-Activity. */
+            public void onClick(View view) {
                 final Intent mainIntent = new Intent(LoginActivity.this, TestActivity.class);
-//                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 LoginActivity.this.startActivity(mainIntent);
                 LoginActivity.this.finish();
-
-                return true;
             }
         });
     }
@@ -152,6 +163,7 @@ public class LoginActivity extends Activity {
                 public void run() {
                     logo.animate().translationY(-logo.getHeight() / 2).setDuration(SPLASH_DISPLAY_LENGTH / 3).start();
                     form.animate().alpha(1).setStartDelay(SPLASH_DISPLAY_LENGTH / 3).start();
+                    developer.animate().alpha(1).setStartDelay(SPLASH_DISPLAY_LENGTH / 3).start();
                 }
             }, SPLASH_DISPLAY_LENGTH);
         }

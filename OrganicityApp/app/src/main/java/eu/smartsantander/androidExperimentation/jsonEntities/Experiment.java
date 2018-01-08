@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.smartsantander.androidExperimentation.util.Discoverable;
+
 /**
  * Created with IntelliJ IDEA.
  * User: theodori
@@ -16,7 +18,7 @@ import java.util.List;
  * Time: 11:06 AM
  * To change this template use File | Settings | File Templates.
  */
-public class Experiment implements Serializable {
+public class Experiment implements Serializable, Discoverable {
 
     public enum State {
         RUNNING,
@@ -144,6 +146,11 @@ public class Experiment implements Serializable {
 
     public String getKey() {
         return key;
+    }
+
+    @Override
+    public String getType() {
+        return "experiment";
     }
 
     public void setKey(String key) {
