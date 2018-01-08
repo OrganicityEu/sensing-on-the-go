@@ -124,26 +124,34 @@ public class ExperimentsFragment extends Fragment implements SwipeRefreshLayout.
             protected void onPostExecute(List<Experiment> experiments) {
                 super.onPostExecute(experiments);
 
-                //TODO REMOVE THIS
-                Experiment experiment = new Experiment();
-                experiment.setName("Noise Level Experiment");
-                experiment.setPkg("eu.organicity.set.experiments.noiselevelexperiment");
-                experiment.setService("NoiseLevelExperiment");
-                experiment.setKey(experiment.getPkg() + "." + experiment.getService());
+//                //TODO REMOVE THIS
+//                experiments.add(dummyExperiment());
 
-                List<Sensor> sen = new ArrayList<>();
-                sen.add(sensors[0]);
-                sen.add(sensors[4]);
-                experiment.setSensors(sen);
+                if (experiments != null) {
+                    adapter.setItems(experiments);
+                    adapter.notifyDataSetChanged();
+                }
 
-                experiments.add(experiment);
-                //
-
-                adapter.setItems(experiments);
-                adapter.notifyDataSetChanged();
+                //stop refreshing
+                swipeRefresh.setRefreshing(false);
             }
         }.execute();
 
+    }
+
+    private Experiment dummyExperiment() {
+        Experiment experiment = new Experiment();
+        experiment.setName("Noise Level Experiment");
+        experiment.setPkg("eu.organicity.set.experiments.noiselevelexperiment");
+        experiment.setService("NoiseLevelExperiment");
+        experiment.setKey(experiment.getPkg() + "." + experiment.getService());
+
+        List<Sensor> sen = new ArrayList<>();
+        sen.add(sensors[0]);
+        sen.add(sensors[4]);
+        experiment.setSensors(sen);
+
+        return experiment;
     }
 
 }
