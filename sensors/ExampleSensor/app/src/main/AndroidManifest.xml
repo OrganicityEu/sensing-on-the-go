@@ -9,6 +9,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="organicity.intent.action.PICK_PLUGIN" />
+                <action android:name="organicity.intent.action.PICK_DEVELOPER_PLUGIN" />
                 <category android:name="organicity.intent.category.ADD_PLUGIN" />
             </intent-filter>
         </service>

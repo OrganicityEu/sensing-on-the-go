@@ -10,6 +10,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -157,6 +158,7 @@ public class ExampleSensorService extends Service {
                 case MSG_PLUGIN_INFO:
                     String status;
                     JSONObject dataJson;
+                    boolean valid = true;
 
                     if (valid) {
                         dataJson = new JSONObject();
@@ -165,6 +167,13 @@ public class ExampleSensorService extends Service {
                             dataJson.put(CONTEXT_TYPE + ".Latitude", location.getLatitude());
                             dataJson.put(CONTEXT_TYPE + ".Longitude", location.getLongitude());
                          */
+
+                        try {
+                            dataJson.put(CONTEXT_TYPE + ".Example1", "Hello");
+                            dataJson.put(CONTEXT_TYPE + ".Example2", "world");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
 
                         status = "valid";
                     } else {
