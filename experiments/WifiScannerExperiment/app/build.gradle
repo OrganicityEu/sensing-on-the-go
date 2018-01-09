@@ -6,7 +6,7 @@ android {
     defaultConfig {
         applicationId "eu.organicity.set.experiments.wifiscannerexperiment"
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 25
         versionCode 5
         versionName "1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
