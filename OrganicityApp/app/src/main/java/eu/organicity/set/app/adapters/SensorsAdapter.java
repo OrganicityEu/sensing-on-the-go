@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ import eu.smartsantander.androidExperimentation.jsonEntities.Sensor;
 
 public class SensorsAdapter extends RecyclerView.Adapter<SensorsAdapter.SensorViewHolder> {
 
+    public static final String TAG = "SensorsAdapter";
     public static final String LAST_EXPERIMENT = "last_experiment";
     private boolean shouldShowUninstall;
     private List<Sensor> items;
@@ -79,7 +81,7 @@ public class SensorsAdapter extends RecyclerView.Adapter<SensorsAdapter.SensorVi
             PackageInfo pkInfo = packageManager.getPackageInfo(sensor.getPkg(), 0);
             installed = true;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Sensor: " + sensor.getPkg() + " not installed");
         }
 
         if (installed) {

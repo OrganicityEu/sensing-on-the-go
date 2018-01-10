@@ -48,7 +48,6 @@ public class SensorsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         swipeRefresh = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefresh);
         swipeRefresh.setOnRefreshListener(this);
-
         onRefresh();
 
         return v;
@@ -85,9 +84,15 @@ public class SensorsFragment extends Fragment implements SwipeRefreshLayout.OnRe
             @Override
             protected void onPostExecute(List<Sensor> sensors) {
                 super.onPostExecute(sensors);
-                adapter.setItems(sensors);
-                adapter.notifyDataSetChanged();
+                if (sensors != null) {
+                    adapter.setItems(sensors);
+                    adapter.notifyDataSetChanged();
+                }
+
+                //stop refreshing
+                swipeRefresh.setRefreshing(false);
             }
         }.execute();
+
     }
 }

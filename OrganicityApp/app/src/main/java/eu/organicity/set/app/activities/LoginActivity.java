@@ -100,6 +100,7 @@ public class LoginActivity extends Activity {
         anonymousTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                anonymousTextView.setText("Starting up! please wait...");
                   /* Create an Intent that will start the Menu-Activity. */
                 final Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
