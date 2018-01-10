@@ -81,7 +81,7 @@ public class AppModel {
         //            final Report aa = new ObjectMapper().readValue(message, Report.class);
         final Report aa = new Report();
         aa.setDeviceId(AppModel.instance.phoneProfiler.getPhoneId());
-        aa.setExperimentId("1");
+        aa.setExperimentId(AppModel.instance.experiment.getId());
         aa.setJobResults(message);
 
         final Intent i = new Intent();
