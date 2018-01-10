@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -119,7 +120,9 @@ public class PhoneProfiler extends Thread implements Runnable {
                     AppModel.instance.phoneProfiler.setDeviceIdHash(deviceId.hashCode());
 
                     try {
+                        Log.i(TAG, "deviceId:" + deviceId.hashCode());
                         serverPhoneId[0] = Communication.getInstance().registerSmartphone(deviceId.hashCode(), getSensorRules());
+                        Log.i(TAG, "Phone:" + serverPhoneId[0]);
                         if (serverPhoneId[0] <= 0) {
                             serverPhoneId[0] = Constants.PHONE_ID_UNITIALIZED;
                         } else {

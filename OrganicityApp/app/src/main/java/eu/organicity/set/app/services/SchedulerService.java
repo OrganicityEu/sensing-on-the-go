@@ -119,9 +119,9 @@ public class SchedulerService extends Service implements SensorConnection.Sensor
         AppModel.instance.connections = new HashMap<>();
         connected = new HashSet<>();
 
-        if (!AppModel.instance.isDeviceRegistered()) {
+//        if (!AppModel.instance.isDeviceRegistered()) {
             AppModel.instance.phoneProfiler.register();
-        }
+//        }
 
         handler = new Handler();
         runnable = new Runnable() {
@@ -159,7 +159,6 @@ public class SchedulerService extends Service implements SensorConnection.Sensor
                             try {
                                 JSONArray array = new JSONArray(result.getPayload());
                                 JSONObject res = new JSONObject((String) array.getJSONObject(0).get("value"));
-
                                 AppModel.publishMessage(getApplicationContext(), res.toString());
                                 Log.d(TAG, "Result: " + res.toString());
 
