@@ -154,7 +154,7 @@ public class OrganicityOAuthDialog extends Dialog {
                 Log.w(TAG, "wtf exception onPageFinished! " + ex.toString());
             }
 
-            if (url.startsWith(OAUTHCALLBACK_URI)) {
+            if (url.contains(OAUTHCALLBACK_URI)) {
                 Bundle values = parseUrl(url);
 
 

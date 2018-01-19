@@ -66,6 +66,12 @@ public class MainActivity extends AppCompatActivity
 
         IntentFilter intentFilter = new IntentFilter("kill-organicity");
         LocalBroadcastManager.getInstance(this).registerReceiver(killReceiver, intentFilter);
+
+        if (AccountUtils.getOfflineToken() != null) {
+            Menu menu = navigationView.getMenu();
+            MenuItem item = menu.findItem(R.id.login);
+            item.setTitle("Logout");
+        }
     }
 
     @Override
