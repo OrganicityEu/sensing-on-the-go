@@ -102,7 +102,8 @@ public class AccountUtils {
      */
     private static PublicKey getPublicKey() {
         try {
-            final InputStream inputStream = App.getInstance().getApplicationContext().getAssets().open("accounts.organicity.eu.cert.pem");
+
+            final InputStream inputStream = App.getInstance().getApplicationContext().getAssets().open("key.pem");
             final CertificateFactory f = CertificateFactory.getInstance("X.509");
             final X509Certificate certificate = (X509Certificate) f.generateCertificate(inputStream);
             return certificate.getPublicKey();
@@ -113,7 +114,7 @@ public class AccountUtils {
     }
 
     public static void storeOfflineToken(final String refreshToken) {
-        Log.i(TAG, "String new offline token...");
+        Log.i(TAG, "Storing new offline token...");
         final SharedPreferences.Editor editor = getPreferences().edit();
         editor.putString(OC_REF_TOKEN_NAME, refreshToken);
         editor.apply();
