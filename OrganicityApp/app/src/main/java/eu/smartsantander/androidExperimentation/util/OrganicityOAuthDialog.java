@@ -103,8 +103,9 @@ public class OrganicityOAuthDialog extends Dialog {
 
     private class OAuthWebViewClient extends WebViewClient {
         @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        public boolean shouldOverrideUrlLoading(WebView view, final String url) {
             if (url.startsWith(OAUTHCALLBACK_URI)) {
+                mSpinner.show();
                 Log.i(TAG, "url:" + url);
                 Uri uri = Uri.parse(url);
                 final String code = uri.getQueryParameter("code");
@@ -112,7 +113,25 @@ public class OrganicityOAuthDialog extends Dialog {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        new Communication().getToken(code, OAUTHCALLBACK_URI, getContext());
+                        Communication com = new Communication();
+                        boolean token = com.getToken(code, OAUTHCALLBACK_URI, getContext());
+
+                        Bundle values = parseUrl(url);
+
+
+                        String error = values.containsKey("error") ? values.getString("error") : null;
+                        if (error == null) {
+                            error = values.containsKey("error_type") ? values.getString("error_type") : null;
+                        }
+
+                        if (error == null) {
+                            mListener.onComplete(values);
+                        } else if (error.equals("access_denied") ||
+                                error.equals("OAuthAccessDeniedException")) {
+                            mListener.onCancel();
+                        }
+
+                        OrganicityOAuthDialog.this.dismiss();
                     }
                 }).start();
                 view.stopLoading();
@@ -147,30 +166,13 @@ public class OrganicityOAuthDialog extends Dialog {
                 mTitle.setText(title);
             }
 
-            try {// to avoid crashing the app add try-catch block, avoid this stupid crash!
-                if (mSpinner != null && mSpinner.isShowing())// by YG
-                    mSpinner.dismiss();
-            } catch (Exception ex) {
-                Log.w(TAG, "wtf exception onPageFinished! " + ex.toString());
-            }
-
-            if (url.contains(OAUTHCALLBACK_URI)) {
-                Bundle values = parseUrl(url);
-
-
-                String error = values.containsKey("error") ? values.getString("error") : null;
-                if (error == null) {
-                    error = values.containsKey("error_type") ? values.getString("error_type") : null;
+            if (!url.startsWith(OAUTHCALLBACK_URI)) {
+                try {// to avoid crashing the app add try-catch block, avoid this stupid crash!
+                    if (mSpinner != null && mSpinner.isShowing())// by YG
+                        mSpinner.dismiss();
+                } catch (Exception ex) {
+                    Log.w(TAG, "wtf exception onPageFinished! " + ex.toString());
                 }
-
-                if (error == null) {
-                    mListener.onComplete(values);
-                } else if (error.equals("access_denied") ||
-                        error.equals("OAuthAccessDeniedException")) {
-                    mListener.onCancel();
-                }
-
-                OrganicityOAuthDialog.this.dismiss();
             }
         }
 

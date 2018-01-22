@@ -17,6 +17,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import eu.organicity.set.app.R;
 import eu.organicity.set.app.fragments.ExperimentsFragment;
@@ -67,10 +69,33 @@ public class MainActivity extends AppCompatActivity
         IntentFilter intentFilter = new IntentFilter("kill-organicity");
         LocalBroadcastManager.getInstance(this).registerReceiver(killReceiver, intentFilter);
 
-        if (AccountUtils.getOfflineToken() != null) {
+        final View header = navigationView.getHeaderView(0);
+        final String offlineToken = AccountUtils.getOfflineToken();
+
+        if (offlineToken != null) {
             Menu menu = navigationView.getMenu();
             MenuItem item = menu.findItem(R.id.login);
             item.setTitle("Logout");
+
+            final TextView textView = (TextView) header.findViewById(R.id.name);
+            Log.i(TAG, "getProfile");
+            Log.i(TAG, "token: " + offlineToken);
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+
+                        final String name = AccountUtils.getUserName();
+                        if (name != null) {
+                            Log.i(TAG, "name: " + name);
+                            textView.setText(name);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, e.getLocalizedMessage(), e);
+                    }
+                }
+            }).start();
         }
     }
 
