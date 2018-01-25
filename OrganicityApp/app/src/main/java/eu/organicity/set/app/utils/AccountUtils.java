@@ -129,7 +129,7 @@ public class AccountUtils {
 
     private static boolean isJwtExpired() {
         if (jwt!=null){
-            Log.i(TAG,jwt.getBody().getExpiration().toString());
+            Log.d(TAG, "Expiration:" + jwt.getBody().getExpiration().toString());
         };
         return jwt == null || !jwt.getBody().getExpiration().after(new Date());
     }

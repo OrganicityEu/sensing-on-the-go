@@ -148,6 +148,14 @@ public class AppModel {
         }
     }
 
+    public static synchronized void deleteExperimentalMessage(Long id) {
+        try {
+            storage.deleteMessage(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void cacheExperimentalMessage(String message) {
         experimentMessageQueue.addLast(message);
         if (experimentMessageQueue.size() > 10) {

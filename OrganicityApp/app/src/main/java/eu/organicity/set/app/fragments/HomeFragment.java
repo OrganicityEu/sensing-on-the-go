@@ -183,11 +183,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
     private Handler statsHandler;
     private Runnable statsRunnable;
 
+    public static Context context;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.home_fragment, container, false);
 
+        context = getContext();
         points = new HashSet<>();
         measurementPoints = new ArrayDeque<>();
         mMixpanel = MixpanelAPI.getInstance(getContext(), BuildConfig.SET_MIXPANEL_TOKEN);

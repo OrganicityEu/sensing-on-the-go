@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.springframework.web.client.HttpClientErrorException;
 
+import eu.organicity.set.app.AppModel;
 import eu.organicity.set.app.sdk.Report;
 
 public class AsyncReportNowTask extends AsyncTask<Report, Void, String> {
@@ -24,7 +25,7 @@ public class AsyncReportNowTask extends AsyncTask<Report, Void, String> {
             Log.e(TAG, e.getMessage(), e);
         } catch (Exception e) {
             // TODO Change this
-//            AppModel.addExperimentalMessage(report.getJobResults());
+            AppModel.addExperimentalMessage(report.getJobResults());
             Log.e(TAG, e.getMessage(), e);
         }
         return "AndroidExperimentation Async Experiment Task Executed";
