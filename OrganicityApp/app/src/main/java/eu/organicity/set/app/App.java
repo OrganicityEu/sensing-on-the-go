@@ -7,6 +7,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.splunk.mint.Mint;
 
 import eu.smartsantander.androidExperimentation.util.LruBitmapCache;
 
@@ -24,7 +25,7 @@ public class App extends MultiDexApplication {
         mInstance = this;
 
         AppModel.create(getApplicationContext());
-//        Mint.initAndStartSession(getApplicationContext(), "6d443500");
+        Mint.initAndStartSession(getApplicationContext(), "6d443500");
     }
 
 
