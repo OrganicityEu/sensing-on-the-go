@@ -49,6 +49,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_developer">DeveloperActivity</string>
     <string name="developer">Test as developer</string>
+    <string name="preference_file_key">userPref</string>
+    <string name="userName">userName</string>
 
 
 </resources>

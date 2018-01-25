@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -29,8 +30,7 @@ import eu.organicity.set.app.operations.Communication;
 import eu.organicity.set.app.services.SchedulerService;
 import eu.organicity.set.app.utils.AccountUtils;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
     private int selectedItemId;
@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity
     };
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,8 +55,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -85,21 +83,29 @@ public class MainActivity extends AppCompatActivity
             usernameTextView = (TextView) header.findViewById(R.id.name);
             Log.d(TAG, "getProfile");
 
+            final SharedPreferences sharedPref = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+            username = sharedPref.getString(getString(R.string.userName), null);
+            if (username != null) {
+                usernameTextView.setText(username);
+            }
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        username = AccountUtils.getUserName();
-                        Log.d(TAG, "username: " + username);
-                        if (username != null) {
+                        final String newUsername = AccountUtils.getUserName();
+                        if (newUsername!=null && !newUsername.equals(username)) {
+                            Log.d(TAG, "username: " + username);
+                            username = newUsername;
                             usernameTextView.setText(username);
+                            sharedPref.edit().putString(getString(R.string.userName), username).apply();
+
                         }
                     } catch (Exception e) {
                         Log.e(TAG, e.getLocalizedMessage(), e);
                     }
                 }
             }).start();
-        }else{
+        } else {
             Log.d(TAG, "offlineToken == null");
         }
     }
@@ -107,7 +113,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if (usernameTextView!=null && username!=null){
+        if (usernameTextView != null && username != null) {
             usernameTextView.setText(username);
         }
     }
@@ -131,7 +137,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main_activity, menu);
+        //        getMenuInflater().inflate(R.menu.main_activity, menu);
         return true;
     }
 
@@ -187,11 +193,11 @@ public class MainActivity extends AppCompatActivity
                 fragmentClass = InfoFragment.class;
                 tag = "InfoFragment";
                 break;
-//            case R.id.settings:
-//                mDrawer.closeDrawers();
-//
-//                startActivity(new Intent(this, DynamixPreferenceActivity.class));
-//                return;
+            //            case R.id.settings:
+            //                mDrawer.closeDrawers();
+            //
+            //                startActivity(new Intent(this, DynamixPreferenceActivity.class));
+            //                return;
             case R.id.login:
                 if (menuItem.getTitle().equals("Logout")) {
                     logout();
@@ -232,6 +238,8 @@ public class MainActivity extends AppCompatActivity
     private void logout() {
         try {
             AccountUtils.clearOfflineToken();
+            final SharedPreferences sharedPref = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+            sharedPref.edit().remove(getString(R.string.userName)).apply();
             new Communication().disconnectUser();
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
