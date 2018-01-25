@@ -36,6 +36,11 @@ android_build () {
     cd $1
 }
 
+for entry in "${otherDirs[@]}"
+do
+    android_build $PWD $entry "./" $LCYAN
+done
+
 
 for entry in "${sensorDirs[@]}"
 do
@@ -45,11 +50,6 @@ done
 for entry in "${experimentDirs[@]}"
 do
     android_build $PWD $entry "experiments" $ORGANGE
-done
-
-for entry in "${otherDirs[@]}"
-do
-    android_build $PWD $entry "./" $LCYAN
 done
 
 
