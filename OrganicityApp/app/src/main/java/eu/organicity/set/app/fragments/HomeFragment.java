@@ -10,6 +10,8 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -451,39 +453,40 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
                     @Override
                     public void run() {
                         regions = new Communication().getExperimentRegions(experiment.getId());
+                        if (regions != null) {
+                            for (final RegionDTO region : regions.getRegions()) {
 
-                        for (final RegionDTO region : regions.getRegions()) {
+                                try {
+                                    Log.i(TAG, "Regions[" + region.getId() + "]  ....");
+                                    final JSONArray array = new JSONArray(region.getCoordinates());
+                                    final PolygonOptions rectOptions = new PolygonOptions();
+                                    final List<LatLng> points = new ArrayList<>();
 
-                            try {
-                                Log.i(TAG, "Regions[" + region.getId() + "]  ....");
-                                final JSONArray array = new JSONArray(region.getCoordinates());
-                                final PolygonOptions rectOptions = new PolygonOptions();
-                                final List<LatLng> points = new ArrayList<>();
-
-                                for (int i = 0; i < array.length(); i++) {
-                                    final JSONArray elem = (JSONArray) array.get(i);
-                                    points.add(new LatLng(elem.getDouble(1), elem.getDouble(0)));
-                                }
-
-                                rectOptions.strokeColor(R.color.organicityPink);
-                                rectOptions.fillColor(R.color.organicityPink);
-                                rectOptions.addAll(points);
-
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        // Get back the mutable Polygon
-                                        mapView.getMapAsync(new OnMapReadyCallback() {
-                                            @Override
-                                            public void onMapReady(GoogleMap googleMap) {
-                                                Polygon polygon = googleMap.addPolygon(rectOptions);
-                                            }
-                                        });
-
+                                    for (int i = 0; i < array.length(); i++) {
+                                        final JSONArray elem = (JSONArray) array.get(i);
+                                        points.add(new LatLng(elem.getDouble(1), elem.getDouble(0)));
                                     }
-                                });
-                            } catch (Exception e) {
-                                Log.e(TAG, e.getMessage(), e);
+
+                                    rectOptions.strokeColor(R.color.organicityPink);
+                                    rectOptions.fillColor(R.color.organicityPink);
+                                    rectOptions.addAll(points);
+
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            // Get back the mutable Polygon
+                                            mapView.getMapAsync(new OnMapReadyCallback() {
+                                                @Override
+                                                public void onMapReady(GoogleMap googleMap) {
+                                                    Polygon polygon = googleMap.addPolygon(rectOptions);
+                                                }
+                                            });
+
+                                        }
+                                    });
+                                } catch (Exception e) {
+                                    Log.e(TAG, e.getMessage(), e);
+                                }
                             }
                         }
                     }
@@ -832,27 +835,30 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
 
                 phoneId = AppModel.instance.phoneProfiler.getPhoneId();
                 final Experiment exp = AppModel.instance.experiment;
-
-                if (exp != null) {
+                if (!isNetworkConnected()) {
+                    return;
+                }
+                if (System.currentTimeMillis() - lastUpdate > 10 * 60 * 1000 || hadLastExp == (exp != null)) {
                     final SmartphoneStatisticsDTO smartphoneStatistics;
                     if (exp == null) {
                         smartphoneStatistics = Communication.getInstance().getSmartphoneStatistics(phoneId);
                     } else {
                         smartphoneStatistics = Communication.getInstance().getSmartphoneStatistics(phoneId, exp.getId());
                     }
-
-                    if (getActivity() != null) {
+                    if (smartphoneStatistics != null && getActivity() != null) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 updateFields(smartphoneStatistics);
                             }
                         });
+                        lastUpdate = System.currentTimeMillis();
+                        hadLastExp = exp != null;
+                    } else {
+                        Log.w(TAG, "smartphoneStatistics:" + smartphoneStatistics);
                     }
-
-                    lastUpdate = System.currentTimeMillis();
-                    hadLastExp = exp != null;
                 }
+
             }
         }).start();
     }
@@ -923,6 +929,16 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
 
     @Override
     public void setDescription(String description) {
+
+    }
+
+    boolean isNetworkConnected(){
+        ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnected();
 
     }
 
