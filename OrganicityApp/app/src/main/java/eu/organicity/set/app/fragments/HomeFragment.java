@@ -837,7 +837,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
                 if (!isNetworkConnected()) {
                     return;
                 }
-                if (System.currentTimeMillis() - lastUpdate > 10 * 60 * 1000 ) {
+                if (System.currentTimeMillis() - lastUpdate > 1 * 60 * 1000 ) {
                     final SmartphoneStatisticsDTO smartphoneStatistics;
                     if (exp == null) {
                         smartphoneStatistics = Communication.getInstance().getSmartphoneStatistics(phoneId);
