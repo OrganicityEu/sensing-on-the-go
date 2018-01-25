@@ -175,7 +175,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
     private OrganicityProfile profile;
     private int phoneId = -1;
     private long lastUpdate = 0;
-    private boolean hadLastExp = false;
 
     private TextView experimentsTodayTextView;
     private TextView readingsTodayTextView;
@@ -838,7 +837,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
                 if (!isNetworkConnected()) {
                     return;
                 }
-                if (System.currentTimeMillis() - lastUpdate > 10 * 60 * 1000 || hadLastExp == (exp != null)) {
+                if (System.currentTimeMillis() - lastUpdate > 10 * 60 * 1000 ) {
                     final SmartphoneStatisticsDTO smartphoneStatistics;
                     if (exp == null) {
                         smartphoneStatistics = Communication.getInstance().getSmartphoneStatistics(phoneId);
@@ -853,7 +852,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
                             }
                         });
                         lastUpdate = System.currentTimeMillis();
-                        hadLastExp = exp != null;
                     } else {
                         Log.w(TAG, "smartphoneStatistics:" + smartphoneStatistics);
                     }
