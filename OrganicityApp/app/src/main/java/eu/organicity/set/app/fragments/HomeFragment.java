@@ -102,7 +102,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Log.i(TAG, "onReceive " + action);
+            Log.d(TAG, "onReceive " + action);
             switch (action) {
                 case RESULT_ACTION:
                     updatePending();
@@ -447,7 +447,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
         try {
             if (regions == null && experiment != null) {
 
-                Log.i(TAG, "Loading Regions....");
+                Log.d(TAG, "Loading Regions....");
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -526,7 +526,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i(TAG, String.format("onLocationChanged: [%f,%f]", location.getLatitude(), location.getLongitude()));
+        Log.d(TAG, String.format("onLocationChanged: [%f,%f]", location.getLatitude(), location.getLongitude()));
         this.location = location;
         final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mapView.getMapAsync(new OnMapReadyCallback() {
@@ -882,10 +882,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
 
             byte[] buffer = new byte[1024];
             int length;
-            Log.i(TAG, "Download for " + deviceId);
+            Log.d(TAG, "Download for " + deviceId);
             File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename);
             FileOutputStream fos = new FileOutputStream(file);
-            Log.i(TAG, "File " + file.getAbsolutePath());
+            Log.d(TAG, "File " + file.getAbsolutePath());
             while ((length = dis.read(buffer)) > 0) {
                 fos.write(buffer, 0, length);
             }

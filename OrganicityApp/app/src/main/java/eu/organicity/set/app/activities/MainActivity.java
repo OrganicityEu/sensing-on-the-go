@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
     private int selectedItemId;
     private Toolbar toolbar;
+    private TextView usernameTextView;
+    private String username;
 
     BroadcastReceiver killReceiver = new BroadcastReceiver() {
         @Override
@@ -42,6 +44,8 @@ public class MainActivity extends AppCompatActivity
             finishAffinity();
         }
     };
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,29 +77,38 @@ public class MainActivity extends AppCompatActivity
         final String offlineToken = AccountUtils.getOfflineToken();
 
         if (offlineToken != null) {
+            Log.i(TAG, "offlineToken != null");
             Menu menu = navigationView.getMenu();
             MenuItem item = menu.findItem(R.id.login);
             item.setTitle("Logout");
 
-            final TextView textView = (TextView) header.findViewById(R.id.name);
-            Log.i(TAG, "getProfile");
-            Log.i(TAG, "token: " + offlineToken);
+            usernameTextView = (TextView) header.findViewById(R.id.name);
+            Log.d(TAG, "getProfile");
 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-
-                        final String name = AccountUtils.getUserName();
-                        if (name != null) {
-                            Log.i(TAG, "name: " + name);
-                            textView.setText(name);
+                        username = AccountUtils.getUserName();
+                        Log.d(TAG, "username: " + username);
+                        if (username != null) {
+                            usernameTextView.setText(username);
                         }
                     } catch (Exception e) {
                         Log.e(TAG, e.getLocalizedMessage(), e);
                     }
                 }
             }).start();
+        }else{
+            Log.d(TAG, "offlineToken == null");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (usernameTextView!=null && username!=null){
+            usernameTextView.setText(username);
         }
     }
 

@@ -77,7 +77,7 @@ public class AccountUtils {
                 accessToken = null;
             }
         } else {
-//            Log.w(TAG, "No offline token available!");
+            //            Log.w(TAG, "No offline token available!");
             accessToken = null;
             jwt = null;
         }
@@ -91,6 +91,10 @@ public class AccountUtils {
     }
 
     public static String getUserName() {
+        Log.d(TAG, "getUserName()");
+        if (jwt == null) {
+            getJwt();
+        }
         if (jwt != null && jwt.getBody().containsKey("name")) {
             return (String) jwt.getBody().get("name");
         }
@@ -128,9 +132,10 @@ public class AccountUtils {
     }
 
     private static boolean isJwtExpired() {
-        if (jwt!=null){
+        if (jwt != null) {
             Log.d(TAG, "Expiration:" + jwt.getBody().getExpiration().toString());
-        };
+        }
+        ;
         return jwt == null || !jwt.getBody().getExpiration().after(new Date());
     }
 
