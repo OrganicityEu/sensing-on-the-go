@@ -229,7 +229,7 @@ public class Communication extends Thread implements Runnable {
         }
 
         List<Sensor> expSensors = new ArrayList<>();
-        final ExperimentListDTO experiments = webServiceClient.listExperiments();
+        final ExperimentListDTO experiments = webServiceClient.listLiveExperiments();
         final ArrayList<Experiment> internalExperiments = new ArrayList<>();
         for (final ExperimentDTO dto : experiments.getExperiments()) {
             final Experiment exp = new Experiment();
