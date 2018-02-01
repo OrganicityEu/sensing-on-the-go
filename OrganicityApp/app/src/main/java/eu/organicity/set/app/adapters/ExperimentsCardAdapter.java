@@ -100,7 +100,8 @@ public class ExperimentsCardAdapter extends RecyclerView.Adapter<ExperimentsCard
         holder.sensors.setText(builder);
 
         Date date = new Date(experiment.getTimestamp());
-        holder.added.setText("Added: " + sdf.format(date));
+        holder.added.setText(fragment.getString(R.string.experiment_added, sdf.format(date)));
+        holder.username.setText(fragment.getString(R.string.experiment_ownder, experiment.getUserId()));
 
         boolean sensorsInstalled = true;
         for (Sensor sensor : experiment.getSensors()) {
@@ -131,26 +132,23 @@ public class ExperimentsCardAdapter extends RecyclerView.Adapter<ExperimentsCard
             holder.start.setTextColor(sensorColor);
 
             if (runningExperiment.getState() == Experiment.State.RUNNING) {
-                holder.start.setText("Stop");
+                holder.start.setText(fragment.getString(R.string.stop));
+            } else {
+                holder.start.setText(fragment.getString(R.string.start));
             }
-            else {
-                holder.start.setText("Start");
-            }
-        }
-        else if (installed) {
+        } else if (installed) {
             holder.start.setEnabled(true);
             holder.start.setTextColor(sensorColor);
         }
 
         if (sensorsInstalled && installed) {
-            holder.install.setText("Uninstall");
+            holder.install.setText(fragment.getString(R.string.uninstall));
             holder.install.setTag("uninstall");
 
             holder.start.setEnabled(true);
             holder.start.setTextColor(sensorColor);
-        }
-        else {
-            holder.install.setText("Install");
+        } else {
+            holder.install.setText(fragment.getString(R.string.install));
             holder.install.setTag("install");
 
             holder.start.setEnabled(false);
@@ -168,8 +166,7 @@ public class ExperimentsCardAdapter extends RecyclerView.Adapter<ExperimentsCard
                     if (fragment != null) {
                         dialog.show(fragment.getActivity().getSupportFragmentManager(), "installSensorsDialog");
                     }
-                }
-                else {
+                } else {
                     Intent intent = new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + experiment.getPkg()));
                     fragment.startActivityForResult(intent, Constants.UNINSTALL_CODE);
                 }
@@ -194,8 +191,7 @@ public class ExperimentsCardAdapter extends RecyclerView.Adapter<ExperimentsCard
 
                 if (text.equals("start")) {
                     fragment.getActivity().startService(intent);
-                }
-                else {
+                } else {
                     intent.putExtra(STOP, true);
                     fragment.getActivity().startService(intent);
                 }
@@ -228,6 +224,7 @@ public class ExperimentsCardAdapter extends RecyclerView.Adapter<ExperimentsCard
         public TextView title;
         public TextView sensors;
         public TextView added;
+        public TextView username;
         public TextView install;
         public Button details;
         public Button start;
@@ -238,6 +235,7 @@ public class ExperimentsCardAdapter extends RecyclerView.Adapter<ExperimentsCard
             title = (TextView) itemView.findViewById(R.id.ex1_title);
             sensors = (TextView) itemView.findViewById(R.id.ex1_plugins);
             added = (TextView) itemView.findViewById(R.id.ex1_start_date);
+            username = (TextView) itemView.findViewById(R.id.ex1_user);
             install = (TextView) itemView.findViewById(R.id.download);
             details = (Button) itemView.findViewById(R.id.details);
             start = (Button) itemView.findViewById(R.id.record);

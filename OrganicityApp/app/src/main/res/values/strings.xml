@@ -52,6 +52,11 @@
     <string name="developer">Test as developer</string>
     <string name="preference_file_key">userPref</string>
     <string name="userName">userName</string>
+    <string name="experiment_added">Added: %s</string>
+    <string name="experiment_ownder">Owner: %s</string>
+    <string name="stop">Stop</string>
+    <string name="start">Start</string>
+    <string name="uninstall">Uninstall</string>
 
 
 </resources>

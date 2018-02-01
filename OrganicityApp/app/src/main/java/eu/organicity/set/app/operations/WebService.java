@@ -6,8 +6,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.ResponseErrorHandler;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import eu.organicity.client.OrganicityServiceBaseClient;
 import eu.organicity.discovery.dto.FeatureCollectionDTO;
+import eu.organicity.set.app.utils.UserDTO;
 import gr.cti.android.experimentation.model.ExperimentDTO;
 import gr.cti.android.experimentation.model.ExperimentListDTO;
 import gr.cti.android.experimentation.model.NewAssetDTO;
@@ -21,6 +25,8 @@ public class WebService extends OrganicityServiceBaseClient {
     private static final String BASE_URL = "https://api.smartphone-experimentation.eu/";
     private static final String ACCOUNTS_TOKEN_ENDPOINT = "https://accounts.organicity.eu/realms/organicity/protocol/openid-connect/token";
     private String encodedToken;
+
+    private static final Map<String, UserDTO[]> usersCache = new HashMap<>();
 
     public WebService() {
         this("");
@@ -47,79 +53,79 @@ public class WebService extends OrganicityServiceBaseClient {
     }
 
     public ExperimentListDTO listExperiments() {
-        if(!"".equals(this.getToken())) {
+        if (!"".equals(this.getToken())) {
             this.updateAccessToken();
         }
 
-        return (ExperimentListDTO)this.restTemplate.exchange("https://api.smartphone-experimentation.eu/api/v1/experiment", HttpMethod.GET, this.req, ExperimentListDTO.class, new Object[0]).getBody();
+        return (ExperimentListDTO) this.restTemplate.exchange("https://api.smartphone-experimentation.eu/api/v1/experiment", HttpMethod.GET, this.req, ExperimentListDTO.class, new Object[0]).getBody();
     }
 
     public ExperimentListDTO listLiveExperiments() {
-        if(!"".equals(this.getToken())) {
+        if (!"".equals(this.getToken())) {
             this.updateAccessToken();
         }
 
-        return (ExperimentListDTO)this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/experiment/live", HttpMethod.GET, this.req, ExperimentListDTO.class, new Object[0]).getBody();
+        return (ExperimentListDTO) this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/experiment/live", HttpMethod.GET, this.req, ExperimentListDTO.class, new Object[0]).getBody();
     }
 
     public ExperimentListDTO listExperiments(int smartphoneId) {
-        if(!"".equals(this.getToken())) {
+        if (!"".equals(this.getToken())) {
             this.updateAccessToken();
         }
 
-        return (ExperimentListDTO)this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/experiment?phoneId=" + smartphoneId, HttpMethod.GET, this.req, ExperimentListDTO.class, new Object[0]).getBody();
+        return (ExperimentListDTO) this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/experiment?phoneId=" + smartphoneId, HttpMethod.GET, this.req, ExperimentListDTO.class, new Object[0]).getBody();
     }
 
     public ExperimentDTO getExperiment(String experimentId) {
-        if(!"".equals(this.getToken())) {
+        if (!"".equals(this.getToken())) {
             this.updateAccessToken();
         }
 
-        return (ExperimentDTO)this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/experiment/" + experimentId, HttpMethod.GET, this.req, ExperimentDTO.class, new Object[0]).getBody();
+        return (ExperimentDTO) this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/experiment/" + experimentId, HttpMethod.GET, this.req, ExperimentDTO.class, new Object[0]).getBody();
     }
 
     public PluginListDTO listPlugins() {
-        if(!"".equals(this.getToken())) {
+        if (!"".equals(this.getToken())) {
             this.updateAccessToken();
         }
 
-        return (PluginListDTO)this.restTemplate.exchange("https://api.smartphone-experimentation.eu/api/v1/plugin", HttpMethod.GET, this.req, PluginListDTO.class, new Object[0]).getBody();
+        return (PluginListDTO) this.restTemplate.exchange("https://api.smartphone-experimentation.eu/api/v1/plugin", HttpMethod.GET, this.req, PluginListDTO.class, new Object[0]).getBody();
     }
 
     public SmartphoneStatisticsDTO getSmartphoneStatistics(int smartphoneId) {
-        if(!"".equals(this.getToken())) {
+        if (!"".equals(this.getToken())) {
             this.updateAccessToken();
         }
 
-        return (SmartphoneStatisticsDTO)this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/smartphone/" + smartphoneId + "/statistics", HttpMethod.GET, this.req, SmartphoneStatisticsDTO.class, new Object[0]).getBody();
+        return (SmartphoneStatisticsDTO) this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/smartphone/" + smartphoneId + "/statistics", HttpMethod.GET, this.req, SmartphoneStatisticsDTO.class, new Object[0]).getBody();
     }
 
     public SmartphoneStatisticsDTO getSmartphoneStatistics(int smartphoneId, String experimentId) {
-        if(!"".equals(this.getToken())) {
+        if (!"".equals(this.getToken())) {
             this.updateAccessToken();
         }
 
-        return (SmartphoneStatisticsDTO)this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/smartphone/" + smartphoneId + "/statistics/" + experimentId, HttpMethod.GET, this.req, SmartphoneStatisticsDTO.class, new Object[0]).getBody();
+        return (SmartphoneStatisticsDTO) this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/smartphone/" + smartphoneId + "/statistics/" + experimentId, HttpMethod.GET, this.req, SmartphoneStatisticsDTO.class, new Object[0]).getBody();
     }
 
     public SmartphoneDTO postSmartphone(SmartphoneDTO smartphone) {
-        if(!"".equals(this.getToken())) {
+        if (!"".equals(this.getToken())) {
             this.updateAccessToken();
         }
 
-        return (SmartphoneDTO)this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/smartphone", HttpMethod.POST, new HttpEntity(smartphone, this.headers), SmartphoneDTO.class, new Object[0]).getBody();
+        return (SmartphoneDTO) this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/smartphone", HttpMethod.POST, new HttpEntity(smartphone, this.headers), SmartphoneDTO.class, new Object[0]).getBody();
     }
 
     public RegionListDTO getExperimentRegions(String experimentId) {
-        if(!"".equals(this.getToken())) {
+        if (!"".equals(this.getToken())) {
             this.updateAccessToken();
         }
 
-        return (RegionListDTO)this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/experiment/" + experimentId + "/region", HttpMethod.GET, this.req, RegionListDTO.class, new Object[0]).getBody();
+        return (RegionListDTO) this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/experiment/" + experimentId + "/region", HttpMethod.GET, this.req, RegionListDTO.class, new Object[0]).getBody();
     }
 
     public String postExperimentResults(ResultDTO resultListDTO) {
-        if(!"".equals(this.getToken())) {
+        if (!"".equals(this.getToken())) {
             this.updateAccessToken();
         }
 
@@ -127,7 +133,7 @@ public class WebService extends OrganicityServiceBaseClient {
     }
 
     public NewAssetDTO sendAsset(String assetName, String assetType, String experimentId, double latitude, double longitude) {
-        if(!"".equals(this.getToken())) {
+        if (!"".equals(this.getToken())) {
             this.updateAccessToken();
         }
 
@@ -137,11 +143,11 @@ public class WebService extends OrganicityServiceBaseClient {
         newAssetDTO.setExperimentId(experimentId);
         newAssetDTO.setLatitude(latitude);
         newAssetDTO.setLongitude(longitude);
-        return (NewAssetDTO)this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/asset/add", HttpMethod.POST, new HttpEntity(newAssetDTO, this.headers), NewAssetDTO.class, new Object[0]).getBody();
+        return (NewAssetDTO) this.restTemplate.exchange("https://api.smartphone-experimentation.eu/v1/asset/add", HttpMethod.POST, new HttpEntity(newAssetDTO, this.headers), NewAssetDTO.class, new Object[0]).getBody();
     }
 
     public FeatureCollectionDTO[] listNearbyAssets(double lat, double lon) {
-        if(!"".equals(this.getToken())) {
+        if (!"".equals(this.getToken())) {
             this.updateAccessToken();
         }
 
@@ -149,6 +155,16 @@ public class WebService extends OrganicityServiceBaseClient {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Accept", "application/json");
         HttpEntity internalRec = new HttpEntity(codeMap, headers);
-        return (FeatureCollectionDTO[])this.restTemplate.exchange("https://api.smartphone-experimentation.eu/assets/geo/search?lat=" + lat + "&long=" + lon + "&radius=20", HttpMethod.GET, internalRec, FeatureCollectionDTO[].class, new Object[0]).getBody();
+        return (FeatureCollectionDTO[]) this.restTemplate.exchange("https://api.smartphone-experimentation.eu/assets/geo/search?lat=" + lat + "&long=" + lon + "&radius=20", HttpMethod.GET, internalRec, FeatureCollectionDTO[].class, new Object[0]).getBody();
+    }
+
+    public UserDTO[] getUser(final String userId) {
+        if (!usersCache.containsKey(userId)) {
+            final UserDTO[] dto = (UserDTO[]) this.restTemplate.exchange("https://accounts.organicity.eu/my/api/v1/users?sub=" + userId, HttpMethod.GET, this.req, UserDTO[].class, new Object[0]).getBody();
+            usersCache.put(userId, dto);
+            return dto;
+        }
+        return usersCache.get(userId);
+
     }
 }

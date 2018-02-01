@@ -31,6 +31,7 @@ import eu.organicity.discovery.dto.FeatureCollectionDTO;
 import eu.organicity.set.app.BuildConfig;
 import eu.organicity.set.app.sdk.Report;
 import eu.organicity.set.app.utils.AccountUtils;
+import eu.organicity.set.app.utils.UserDTO;
 import eu.smartsantander.androidExperimentation.jsonEntities.Experiment;
 import eu.smartsantander.androidExperimentation.jsonEntities.Sensor;
 import eu.smartsantander.androidExperimentation.util.Constants;
@@ -237,7 +238,12 @@ public class Communication extends Thread implements Runnable {
             exp.setId(dto.getId());
             exp.setName(dto.getName());
             exp.setDescription(dto.getDescription());
-            exp.setUserId(dto.getUserId());
+            UserDTO[] users = webServiceClient.getUser(dto.getUserId());
+            if (users.length>0) {
+                exp.setUserId(users[0].getUsername());
+            } else {
+                exp.setUserId(dto.getUserId());
+            }
             exp.setService(dto.getFilename());
             exp.setTimestamp(dto.getTimestamp());
             exp.setPkg(dto.getContextType());

@@ -47,6 +47,17 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@android:color/black"/>
 
+        <TextView
+            android:id="@+id/ex1_user"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:fadingEdge="horizontal"
+            android:paddingBottom="8dp"
+            android:text="Owner:"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/black"/>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
