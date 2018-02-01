@@ -87,18 +87,20 @@ public class SensorsAdapter extends RecyclerView.Adapter<SensorsAdapter.SensorVi
         if (installed) {
             if (shouldShowUninstall) {
                 holder.install.setVisibility(View.VISIBLE);
-                holder.install.setText("Uninstall");
+                holder.install.setText(fragment.getString(R.string.uninstall));
+                holder.install.setTag("uninstall");
             }
             else {
                 holder.install.setVisibility(View.GONE);
             }
         }
         else {
-            holder.install.setText("Install");
+            holder.install.setText(fragment.getString(R.string.install));
+            holder.install.setTag("install");
             holder.install.setVisibility(View.VISIBLE);
         }
 
-        final String tag = holder.install.getText().toString().toLowerCase();
+        final String tag = (String) holder.install.getTag();
         holder.install.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
