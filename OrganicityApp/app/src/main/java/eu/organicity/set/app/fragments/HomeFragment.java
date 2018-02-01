@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -613,15 +614,18 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
 //        DynamixService.mixpanelRecord("readings", smartphoneStatistics.getReadings());
 //        DynamixService.mixpanelRecord("badges", smartphoneStatistics.getBadges().size());
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                experimentsTodayTextView.setText("");
-                readingsTodayTextView.setText(Long.toString(smartphoneStatistics.getExperimentReadings()));
-                experimentsAllTextView.setText(Long.toString(smartphoneStatistics.getExperiments()));
-                readingsAllTextView.setText(Long.toString(smartphoneStatistics.getReadings()));
-            }
-        });
+        final FragmentActivity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    experimentsTodayTextView.setText("");
+                    readingsTodayTextView.setText(Long.toString(smartphoneStatistics.getExperimentReadings()));
+                    experimentsAllTextView.setText(Long.toString(smartphoneStatistics.getExperiments()));
+                    readingsAllTextView.setText(Long.toString(smartphoneStatistics.getReadings()));
+                }
+            });
+        }
 
         //-------------------------------------//
 
