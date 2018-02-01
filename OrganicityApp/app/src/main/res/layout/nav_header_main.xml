@@ -24,6 +24,16 @@
         android:text="Anonymous Organicitizen"
         android:textColor="@android:color/white"
         android:layout_alignParentBottom="true"
+        android:paddingBottom="25dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+
+    <TextView
+        android:id="@+id/version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@android:color/white"
+        android:layout_alignParentBottom="true"
         android:paddingBottom="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 

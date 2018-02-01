@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -72,6 +74,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LocalBroadcastManager.getInstance(this).registerReceiver(killReceiver, intentFilter);
 
         final View header = navigationView.getHeaderView(0);
+
+        final TextView versionTextView = (TextView) header.findViewById(R.id.version);
+        try {
+            final PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
+            versionTextView.setText(getString(R.string.app_version, info.versionName, info.versionCode));
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.w(TAG, e.getLocalizedMessage(), e);
+        }
+
         final String offlineToken = AccountUtils.getOfflineToken();
 
         if (offlineToken != null) {
