@@ -229,11 +229,11 @@ public class Communication extends Thread implements Runnable {
             sensors.put(dto.getContextType(), s);
         }
 
-        List<Sensor> expSensors = new ArrayList<>();
+
         final ExperimentListDTO experiments = webServiceClient.listLiveExperiments();
         final ArrayList<Experiment> internalExperiments = new ArrayList<>();
         for (final ExperimentDTO dto : experiments.getExperiments()) {
-            final Experiment exp = new Experiment();
+            Experiment exp = new Experiment();
 
             exp.setId(dto.getId());
             exp.setName(dto.getName());
@@ -254,7 +254,7 @@ public class Communication extends Thread implements Runnable {
             exp.setUrlDescription(dto.getUrlDescription());
             exp.setParentExperimentId(dto.getParentExperimentId());
 
-            expSensors.clear();
+            List<Sensor> expSensors = new ArrayList<>();
             for (String s : dto.getSensorDependencies().split(",")) {
                 expSensors.add(sensors.get(s));
             }
