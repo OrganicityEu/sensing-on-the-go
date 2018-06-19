@@ -23,8 +23,8 @@ allprojects {
         mavenLocal()
         maven { url "https://jitpack.io" }
         maven { url 'http://repo.spring.io/milestone' }
-        maven { url 'https://maven.itm.uni-luebeck.de/content/repositories/snapshots' }
         maven { url "https://mint.splunk.com/gradle/" }
+        maven { url "http://maven.amaxilatis.com/repository/amaxilatis/" }
     }
 }
 

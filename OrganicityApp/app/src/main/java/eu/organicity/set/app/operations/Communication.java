@@ -109,6 +109,7 @@ public class Communication extends Thread implements Runnable {
      * @throws Exception
      */
     public int registerSmartphone(final int phoneId, final String sensorsRules) throws Exception {
+        Log.i(TAG, "Registering phone " + phoneId + " rules:" + sensorsRules);
         final SmartphoneDTO smartphone = new SmartphoneDTO();
         smartphone.setPhoneId((long) phoneId);
         smartphone.setSensorsRules(sensorsRules);
@@ -337,6 +338,7 @@ public class Communication extends Thread implements Runnable {
 
     public String sendReportResults(final Report jsonReport) throws Exception {
         try {
+            Log.i(TAG, "sendReportResults :" + jsonReport.getExperimentId());
             String res = postResults(jsonReport);
             lastHash = jsonReport.hashCode();
             return res;

@@ -64,6 +64,9 @@
         <service
             android:name=".services.SchedulerService"
             android:exported="false" />
+        <service
+            android:name="eu.organicity.set.app.connections.ExperimentConnection"
+            android:exported="false" />
 
     </application>
 
